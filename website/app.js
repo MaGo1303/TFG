@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
 
   // Scroll reveal
-  const revealEls = document.querySelectorAll('.service-card, .app-feat, .team-card, .tech, .testim-card');
+  const revealEls = document.querySelectorAll('.service-card, .app-feat, .team-card, .tech, .confianza-header, .confianza-box');
   revealEls.forEach(el => el.classList.add('reveal'));
   const obs = new IntersectionObserver(entries => {
     entries.forEach((e, i) => {
