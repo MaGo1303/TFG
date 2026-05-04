@@ -80,7 +80,7 @@
 .cat-icon-wrap {
   width: 44px; height: 44px;
   background: var(--accent-xs);
-  border: 1px solid #c5d0e8;
+  border: 1px solid #eadbc1;
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   color: var(--accent); font-size: 1.1rem;
@@ -139,7 +139,7 @@
   padding: 3px 10px; border-radius: 4px;
 }
 .listing-badge-premium {
-  background: #2a4080;
+  background: #c5a059;
 }
 
 /* Card info */
@@ -199,7 +199,7 @@
 .btn-listing {
   display: inline-flex; align-items: center;
   background: var(--accent-xs);
-  border: 1px solid #c5d0e8;
+  border: 1px solid #eadbc1;
   color: var(--accent);
   font-size: 0.78rem; font-weight: 600;
   padding: 7px 16px; border-radius: 5px;

@@ -12,12 +12,12 @@
 
 :root {
   /* Paleta corporativa */
-  --accent: #1a2d5a;
-  /* Azul marino corporativo */
-  --accent-l: #2a4080;
-  /* Azul más claro */
-  --accent-xs: #e8edf7;
-  /* Azul muy suave (fondos) */
+  --accent: #c5a059;
+  /* Amarillo dorado corporativo */
+  --accent-l: #d9b36c;
+  /* Amarillo más claro */
+  --accent-xs: #fdfaf2;
+  /* Amarillo muy suave (fondos) */
   --surface: #ffffff;
   --bg: #f5f6f8;
   --bg2: #eef0f4;
@@ -77,12 +77,20 @@ em {
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  transition: var(--ease);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nav-hidden-top {
+  transform: translateY(-100%);
 }
 
 .nav.solid {
   background: rgba(255, 255, 255, 0.98);
   box-shadow: var(--shadow);
+}
+
+.nav-hidden-top.solid {
+  transform: translateY(0);
 }
 
 .nav-inner {
@@ -351,8 +359,8 @@ em {
   align-items: center;
   gap: 8px;
   background: var(--accent);
-  color: #fff;
-  font-weight: 600;
+  color: #0f1520;
+  font-weight: 700;
   font-size: 0.875rem;
   padding: 12px 26px;
   border-radius: 6px;
@@ -496,7 +504,7 @@ em {
   font-weight: 600;
   color: var(--accent);
   background: var(--accent-xs);
-  border: 1px solid #c5d0e8;
+  border: 1px solid #eadbc1;
   padding: 3px 11px;
   border-radius: 4px;
   display: inline-block;
@@ -675,7 +683,7 @@ em {
 .form input:focus,
 .form textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(26, 45, 90, 0.08);
+  box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
 }
 
 .form .btn-gold {
