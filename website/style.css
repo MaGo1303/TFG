@@ -361,24 +361,51 @@ em {
   }
 }
 
-/* ---- HERO MARQUEE ---- */
-.hero-marquee {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(15, 21, 32, 0.7);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 14px 0;
+/* ---- CONFIANZA ---- */
+.confianza-header {
+  text-align: left;
+  margin-bottom: 32px;
+}
+.conf-eye {
+  color: var(--text-3);
+  margin-bottom: 12px;
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.conf-title {
+  text-align: left;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+.conf-sub {
+  text-align: left;
+  margin: 0;
+  max-width: 650px;
+}
+
+.confianza-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 44px 0;
   overflow: hidden;
-  z-index: 5;
-  backdrop-filter: blur(8px);
+  position: relative;
+  /* fade edges mask */
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 40s linear infinite;
+  animation: marquee 35s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
 }
 
 .marquee-content {
@@ -386,23 +413,25 @@ em {
   align-items: center;
 }
 
-.marquee-content span {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.9rem;
-  font-family: var(--sans);
+.m-item {
+  color: var(--text-2);
+  font-size: 1.05rem;
+  line-height: 1.6;
   white-space: nowrap;
+  text-align: center;
 }
 
-.marquee-content span i {
-  color: var(--accent);
-  font-size: 0.75rem;
-  margin-left: 6px;
+.m-item strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.9rem;
+  margin-top: 6px;
 }
 
-.marquee-content .m-dot {
-  color: var(--accent);
-  margin: 0 40px;
-  font-size: 1.2rem;
+.m-dot {
+  color: var(--border-d);
+  margin: 0 50px;
+  font-size: 1.5rem;
 }
 
 @keyframes marquee {
