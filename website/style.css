@@ -94,45 +94,33 @@ em { font-style: normal; color: var(--accent); }
 /* ---- HERO ---- */
 .hero {
   min-height: 100vh;
-  display: flex;
+  display: flex; align-items: flex-end;
   position: relative;
   overflow: hidden;
   padding: 0;
-  background: var(--accent);
 }
 
-.hero-split {
-  display: flex;
-  width: 100%;
-  min-height: 100vh;
+.hero-bg {
+  position: absolute; inset: 0;
+  background: url('img/banner.png') center center / cover no-repeat;
+  transform: scale(1.04);
+  transition: transform 8s ease;
+  filter: brightness(0.55) saturate(0.85);
 }
+.hero:hover .hero-bg { transform: scale(1); }
 
-.hero-left {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  background: var(--accent);
-  padding: 80px 40px 80px 10%;
-  position: relative;
-  z-index: 2;
-}
-
-.hero-right {
-  flex: 1.2;
-  background: url('img/bentley_continental.jpg') center right / cover no-repeat;
-  position: relative;
-}
-
-.hero-right::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to right, var(--accent) -2%, transparent 25%);
+.hero-overlay {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to top, rgba(15,21,32,0.98) 0%, rgba(15,21,32,0.6) 50%, rgba(15,21,32,0.2) 100%),
+    linear-gradient(to right, rgba(15,21,32,0.75) 0%, transparent 65%);
 }
 
 .hero-content {
-  max-width: 540px;
-  width: 100%;
+  position: relative; z-index: 2;
+  max-width: 1100px; width: 100%;
+  margin: 0 auto;
+  padding: 0 60px 80px;
 }
 
 .hero-eyebrow {
@@ -197,7 +185,27 @@ em { font-style: normal; color: var(--accent); }
   margin-right: 28px; flex-shrink: 0;
 }
 
-
+.hero-scroll-hint {
+  position: absolute;
+  right: 40px; bottom: 48px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  z-index: 3;
+}
+.hero-scroll-hint span {
+  font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  writing-mode: vertical-rl;
+}
+.scroll-line {
+  width: 1px; height: 44px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+  animation: scrollPulse 2.2s ease infinite;
+}
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.1); }
+}
 
 /* ---- BUTTONS ---- */
 .btn-gold {
@@ -418,13 +426,10 @@ em { font-style: normal; color: var(--accent); }
 
 /* ---- RESPONSIVE ---- */
 @media (max-width: 900px) {
-  .hero-split { flex-direction: column; }
-  .hero-left { padding: 120px 32px 60px; align-items: flex-start; }
-  .hero-right { min-height: 400px; }
-  .hero-right::after { background: linear-gradient(to bottom, var(--accent) -2%, transparent 25%); }
   .services-grid { grid-template-columns: repeat(2, 1fr); }
   .app-features { grid-template-columns: repeat(2, 1fr); }
-  .hero-content { padding: 0; }
+  .hero-content { padding: 0 32px 60px; }
+  .hero-scroll-hint { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -472,8 +477,7 @@ em { font-style: normal; color: var(--accent); }
   .services-grid { grid-template-columns: 1fr; }
   .app-features { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
-  .hero-left { padding: 100px 24px 52px; }
-  .hero-content { padding: 0; }
+  .hero-content { padding: 0 24px 52px; }
   .hero-btns { flex-direction: column; }
   .btn-gold, .btn-ghost { width: 100%; justify-content: center; }
   .hero-stats { gap: 0; }
