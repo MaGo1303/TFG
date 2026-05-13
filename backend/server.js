@@ -1,0 +1,176 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const mysql = require('mysql2/promise');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'royalrent',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
+
+// Middleware to verify JWT token
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.JWT_SECRET || 'secret_key', (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+
+// Auth routes
+app.post('/api/register', async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        const [result] = await pool.execute(
+            'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+            [name, email, hashedPassword]
+        );
+        
+        res.status(201).json({ message: 'User registered successfully', userId: result.insertId });
+    } catch (error) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            res.status(400).json({ error: 'Email already exists' });
+        } else {
+            res.status(500).json({ error: 'Database error' });
+        }
+    }
+});
+
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        const [users] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+        if (users.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+        
+        const user = users[0];
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' });
+        
+        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '24h' });
+        res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// User routes
+app.get('/api/user/profile', authenticateToken, async (req, res) => {
+    try {
+        const [users] = await pool.execute('SELECT id, name, email, created_at FROM users WHERE id = ?', [req.user.id]);
+        if (users.length === 0) return res.status(404).json({ error: 'User not found' });
+        res.json(users[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.put('/api/user/profile', authenticateToken, async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            await pool.execute('UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?', [name, email, hashedPassword, req.user.id]);
+        } else {
+            await pool.execute('UPDATE users SET name = ?, email = ? WHERE id = ?', [name, email, req.user.id]);
+        }
+        res.json({ message: 'Profile updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Items routes (Cars, Yachts, Helicopters)
+app.get('/api/items', async (req, res) => {
+    try {
+        const { type } = req.query;
+        let query = 'SELECT * FROM items';
+        let params = [];
+        
+        if (type) {
+            query += ' WHERE type = ?';
+            params.push(type);
+        }
+        
+        const [items] = await pool.execute(query, params);
+        res.json(items);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Orders routes (Cart checkout & History)
+app.post('/api/orders', authenticateToken, async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+        
+        const { items, totalPrice } = req.body; // items is [{ id, quantity, price }]
+        
+        const [orderResult] = await connection.execute(
+            'INSERT INTO orders (user_id, total_price) VALUES (?, ?)',
+            [req.user.id, totalPrice]
+        );
+        
+        const orderId = orderResult.insertId;
+        
+        for (const item of items) {
+            await connection.execute(
+                'INSERT INTO order_items (order_id, item_id, quantity, price) VALUES (?, ?, ?, ?)',
+                [orderId, item.id, item.quantity, item.price]
+            );
+        }
+        
+        await connection.commit();
+        res.status(201).json({ message: 'Order created successfully', orderId });
+    } catch (error) {
+        await connection.rollback();
+        res.status(500).json({ error: 'Failed to create order' });
+    } finally {
+        connection.release();
+    }
+});
+
+app.get('/api/orders/history', authenticateToken, async (req, res) => {
+    try {
+        const [orders] = await pool.execute('SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
+        
+        for (let order of orders) {
+            const [items] = await pool.execute(`
+                SELECT oi.*, i.name, i.type, i.image_url 
+                FROM order_items oi 
+                JOIN items i ON oi.item_id = i.id 
+                WHERE oi.order_id = ?
+            `, [order.id]);
+            order.items = items;
+        }
+        
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});

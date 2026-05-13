@@ -196,7 +196,7 @@ em {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: url('img/banner.png') center center / cover no-repeat;
+  background: url('/img/banner.png') center center / cover no-repeat;
   transform: scale(1.04);
   transition: transform 8s ease;
   filter: brightness(0.55) saturate(0.85);
@@ -889,8 +889,8 @@ em {
 
 /* ---- REVEAL ---- */
 .reveal {
-  opacity: 0;
-  transform: translateY(20px);
+  opacity: 1;
+  transform: translateY(0);
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
