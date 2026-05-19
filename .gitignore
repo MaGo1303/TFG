@@ -1,5 +1,4 @@
 # Archivos del sistema
-*.pdf
 *.DS_Store
 Thumbs.db
 desktop.ini
@@ -9,6 +8,10 @@ desktop.ini
 *.suo
 *.user
 
-# Node (por si se usa en el futuro)
+# Node
 node_modules/
 .env
+
+# Build output
+dist/
+frontend/dist/
