@@ -2,7 +2,7 @@
 
 <div align="center">
   <br>
-  <img src="https://raw.githubusercontent.com/MaGo1303/TFG/main/frontend/public/img/royal_rent_logo.png" alt="RoyalRent" height="80" />
+  <img src="https://raw.githubusercontent.com/MaGo1303/TFG/master/frontend/public/img/royal_rent_logo.png" alt="RoyalRent" height="80" />
   <br><br>
   <p><strong>Plataforma de Alquiler de Vehículos y Servicios Premium</strong></p>
   <p>
@@ -103,5 +103,5 @@ La documentación completa del proyecto se encuentra en [`Documentacion_TFG.pdf`
   <br>
   <sub>© 2025 · Gonzalo Velasco & Miguel José · IES · DAM</sub>
   <br><br>
-  <img src="https://raw.githubusercontent.com/MaGo1303/TFG/main/frontend/public/img/royal_rent_favicon.jpg" alt="RR" height="28" />
+  <img src="https://raw.githubusercontent.com/MaGo1303/TFG/master/frontend/public/img/royal_rent_favicon.jpg" alt="RR" height="28" />
 </div>
