@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
@@ -15,7 +15,6 @@ export default function Profile() {
             navigate('/auth');
             return;
         }
-        setFormData({ name: user.name, email: user.email, password: '' });
 
         // Fetch history
         axios.get('http://localhost:5000/api/orders/history')
@@ -29,7 +28,7 @@ export default function Profile() {
             await axios.put('http://localhost:5000/api/user/profile', formData);
             setMessage('Perfil actualizado correctamente');
             setUser({ ...user, name: formData.name, email: formData.email });
-        } catch (error) {
+        } catch {
             setMessage('Error al actualizar');
         }
     };

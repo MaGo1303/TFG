@@ -1,5 +1,5 @@
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/useCart';
+import { useAuth } from '../context/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useState } from 'react';
@@ -31,7 +31,7 @@ export default function Cart() {
             setStep('cart');
             alert('¡Reserva realizada con éxito!');
             navigate('/profile');
-        } catch (error) {
+        } catch {
             alert('Error al procesar la reserva. Inténtalo de nuevo.');
         } finally {
             setLoading(false);

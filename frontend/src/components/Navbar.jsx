@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
-import { ShoppingCart, User, LogOut, Menu } from 'lucide-react';
+import { useAuth } from '../context/useAuth';
+import { useCart } from '../context/useCart';
+import { ShoppingCart, User, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {

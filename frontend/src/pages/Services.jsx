@@ -1,19 +1,23 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useLocation, Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { useSearchParams, Link } from 'react-router-dom';
+import { useCart } from '../context/useCart';
 
 export default function Services() {
     const [items, setItems] = useState([]);
-    const [filter, setFilter] = useState('all');
-    const location = useLocation();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { addToCart } = useCart();
 
-    useEffect(() => {
-        const queryParams = new URLSearchParams(location.search);
-        const type = queryParams.get('type');
-        if (type) setFilter(type);
-    }, [location]);
+    const filter = searchParams.get('type') || 'all';
+
+    const handleFilter = (cat) => {
+        if (cat === 'all') {
+            searchParams.delete('type');
+        } else {
+            searchParams.set('type', cat);
+        }
+        setSearchParams(searchParams);
+    };
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -23,16 +27,12 @@ export default function Services() {
             try {
                 const res = await axios.get(url);
                 setItems(res.data);
-            } catch (error) {
-                console.error("Error fetching items", error);
+            } catch {
+                console.error("Error fetching items");
             }
         };
         fetchItems();
     }, [filter]);
-
-    const handleFilter = (cat) => {
-        setFilter(cat);
-    };
 
     return (
         <>
