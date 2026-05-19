@@ -21,9 +21,12 @@ export default function Navbar() {
     return (
         <nav className={`nav nav-hidden-top ${scrolled ? 'solid' : ''}`} id="nav">
             <div className="nav-inner">
-                <Link to="/" className="logo">Royal<span>Rent</span></Link>
+                <Link to="/" className="logo">
+                    <img src="/img/royal_rent_logo.png" alt="RoyalRent" className="logo-img logo-img-desktop" />
+                    <img src="/img/royal_rent_favicon.jpg" alt="RoyalRent" className="logo-img logo-img-mobile" />
+                </Link>
                 <div className={`nav-links ${menuOpen ? 'open' : ''}`} id="navLinks">
-                    <span className="nav-mobile-logo">Royal<span>Rent</span></span>
+                    <span className="nav-mobile-logo"><img src="/img/royal_rent_favicon.jpg" alt="RoyalRent" className="mobile-logo-img" /></span>
                     <div className="nav-mobile-sep"></div>
                     <Link to="/services" onClick={() => setMenuOpen(false)}>Servicios</Link>
                     {user ? (

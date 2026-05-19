@@ -106,19 +106,22 @@ em {
 }
 
 .logo {
-  font-family: var(--sans);
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #fff;
-  text-decoration: none;
-  letter-spacing: -0.02em;
   display: flex;
   align-items: center;
-  gap: 8px;
+  text-decoration: none;
 }
 
-.logo span {
-  color: var(--accent);
+.logo-img-desktop {
+  height: 55px;
+  width: auto;
+  display: block;
+}
+
+.logo-img-mobile {
+  display: none;
+  height: 34px;
+  width: auto;
+  border-radius: 6px;
 }
 
 .nav-links {
@@ -197,20 +200,24 @@ em {
   position: absolute;
   inset: 0;
   background: url('/img/banner.png') center center / cover no-repeat;
-  transform: scale(1.04);
-  transition: transform 8s ease;
   filter: brightness(0.55) saturate(0.85);
 }
 
-.hero:hover .hero-bg {
-  transform: scale(1);
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.45) saturate(0.9);
+  background: #0f1520;
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to top, rgba(15, 21, 32, 0.98) 0%, rgba(15, 21, 32, 0.5) 50%, rgba(15, 21, 32, 0.5) 100%);
+    linear-gradient(to top, rgba(15, 21, 32, 0.98) 0%, rgba(15, 21, 32, 0.4) 50%, rgba(15, 21, 32, 0.3) 100%);
 }
 
 .hero-content {
@@ -361,19 +368,10 @@ em {
   }
 }
 
-/* ---- CONFIANZA ---- */
+/* ---- CONFIANZA (Google Reviews Marquee) ---- */
 .confianza-header {
   text-align: left;
   margin-bottom: 32px;
-}
-.conf-eye {
-  color: var(--text-3);
-  margin-bottom: 12px;
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
 }
 .conf-title {
   text-align: left;
@@ -382,59 +380,97 @@ em {
 }
 .conf-sub {
   text-align: left;
-  margin: 0;
+  margin: 0 0 8px;
   max-width: 650px;
 }
 
-.confianza-box {
+.gm-marquee-box {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 44px 0;
+  padding: 28px 0;
   overflow: hidden;
   position: relative;
-  /* fade edges mask */
-  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
 }
 
-.marquee-track {
+.gm-marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 35s linear infinite;
+  animation: gmMarquee 45s linear infinite;
 }
-
-.marquee-track:hover {
+.gm-marquee-track:hover {
   animation-play-state: paused;
 }
 
-.marquee-content {
+.gm-marquee-group {
+  display: flex;
+  gap: 16px;
+  padding-right: 16px;
+}
+
+.gm-review-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 22px;
+  width: 310px;
+  flex-shrink: 0;
+  transition: var(--ease);
+}
+.gm-review-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-m);
+}
+
+.gm-review-header {
   display: flex;
   align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
 }
-
-.m-item {
-  color: var(--text-2);
-  font-size: 1.05rem;
-  line-height: 1.6;
-  white-space: nowrap;
-  text-align: center;
-}
-
-.m-item strong {
-  display: block;
+.gm-review-header strong {
+  font-size: 0.85rem;
   color: var(--text);
-  font-size: 0.9rem;
-  margin-top: 6px;
+  display: block;
+  line-height: 1.2;
+}
+.gm-date {
+  font-size: 0.7rem;
+  color: var(--text-3);
 }
 
-.m-dot {
-  color: var(--border-d);
-  margin: 0 50px;
-  font-size: 1.5rem;
+.gm-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  background: var(--accent);
 }
 
-@keyframes marquee {
+.gm-stars {
+  margin-left: auto;
+  color: var(--accent);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  flex-shrink: 0;
+}
+
+.gm-review-card p {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+@keyframes gmMarquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
@@ -646,63 +682,6 @@ em {
   color: var(--text-3);
 }
 
-/* ---- APP FEATURES ---- */
-.app-features {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 32px;
-}
-
-.app-feat {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px 16px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-2);
-  transition: var(--ease);
-}
-
-.app-feat:hover {
-  border-color: var(--accent);
-  color: var(--text);
-}
-
-.app-feat i {
-  color: var(--accent);
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.tech-row {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.tech {
-  font-size: 0.775rem;
-  font-weight: 600;
-  color: var(--text-2);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  padding: 6px 14px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.tech i {
-  color: var(--accent);
-}
-
 /* ---- TEAM ---- */
 .team-row {
   display: flex;
@@ -905,10 +884,6 @@ em {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .app-features {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .hero-content {
     padding: 0 32px 60px;
   }
@@ -963,16 +938,24 @@ em {
     z-index: 200;
   }
 
-  .nav-mobile-logo {
+  .logo-img-desktop {
+    display: none;
+  }
+
+  .logo-img-mobile {
     display: block;
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #fff;
+  }
+
+  .nav-mobile-logo {
+    display: flex;
+    justify-content: center;
     margin-bottom: 8px;
   }
 
-  .nav-mobile-logo span {
-    color: var(--accent);
+  .mobile-logo-img {
+    height: 44px;
+    width: auto;
+    border-radius: 8px;
   }
 
   .nav-mobile-sep {
@@ -985,10 +968,6 @@ em {
   }
 
   .services-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .app-features {
     grid-template-columns: 1fr;
   }
 

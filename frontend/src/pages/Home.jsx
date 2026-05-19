@@ -4,7 +4,9 @@ export default function Home() {
     return (
         <>
             <section className="hero" id="inicio">
-                <div className="hero-bg"></div>
+                <video className="hero-video" autoPlay muted loop playsInline poster="/img/banner.png">
+                    <source src="/img/hero-bg.mp4" type="video/mp4" />
+                </video>
                 <div className="hero-overlay"></div>
                 <div className="hero-content">
                     <div className="hero-eyebrow">
@@ -12,10 +14,9 @@ export default function Home() {
                         <span className="eyebrow-text">Proyecto Fin de Ciclo · DAM 2025</span>
                     </div>
                     <h1>El Lujo que<br /><em>Mereces</em></h1>
-                    <p>RoyalRent centraliza el alquiler de vehículos y servicios premium en una sola plataforma — disponible en web y app Android.</p>
+                    <p>RoyalRent centraliza el alquiler de vehículos y servicios premium en una sola plataforma.</p>
                     <div className="hero-btns">
                         <Link to="/services" className="btn-gold">Explorar Servicios</Link>
-                        <a href="#app" className="btn-ghost">App Android</a>
                     </div>
                     <div className="hero-stats">
                         <div className="hstat"><strong>500+</strong><span>Servicios</span></div>
@@ -35,20 +36,107 @@ export default function Home() {
                 <div className="wrap">
                     <div className="confianza-header reveal">
                         <h2 className="sec-title conf-title">Han confiado en nosotros</h2>
-                        <p className="sec-sub conf-sub">Experiencias reales de clientes que eligen RoyalRent para sus traslados, estancias y momentos más exclusivos.</p>
+                        <p className="sec-sub conf-sub">Más de 200 clientes ya han vivido la experiencia RoyalRent. Sus opiniones nos avalan.</p>
                     </div>
 
-                    <div className="confianza-box reveal">
-                        <div className="marquee-track">
-                            <div className="marquee-content">
-                                <span className="m-item">"Atención completamente VIP. Un servicio 10/10." <br /><strong>— Alejandro V.</strong></span>
-                                <span className="m-dot">•</span>
-                                <span className="m-item">"Impecable y discreto. Los vehículos perfectos." <br /><strong>— Elena R.</strong></span>
-                                <span className="m-dot">•</span>
-                                <span className="m-item">"Experiencia inmejorable. Staff atento a todo." <br /><strong>— Carlos M.</strong></span>
-                                <span className="m-dot">•</span>
-                                <span className="m-item">"Conseguimos una experiencia espectacular." <br /><strong>— Marta G.</strong></span>
-                                <span className="m-dot">•</span>
+                    <div className="gm-marquee-box reveal">
+                        <div className="gm-marquee-track">
+                            <div className="gm-marquee-group">
+                                <div className="gm-review-card">
+                                    <div className="gm-review-header">
+                                        <div className="gm-avatar">AV</div>
+                                        <div>
+                                            <strong>Alejandro V.</strong>
+                                            <span className="gm-date">Hace 2 semanas</span>
+                                        </div>
+                                        <div className="gm-stars">★★★★★</div>
+                                    </div>
+                                    <p>"Atención completamente VIP. El coche estaba impecable y el proceso de recogida y entrega fue muy ágil. Repetiré sin duda."</p>
+                                </div>
+
+                                <div className="gm-review-card">
+                                    <div className="gm-review-header">
+                                        <div className="gm-avatar">ER</div>
+                                        <div>
+                                            <strong>Elena R.</strong>
+                                            <span className="gm-date">Hace 1 mes</span>
+                                        </div>
+                                        <div className="gm-stars">★★★★★</div>
+                                    </div>
+                                    <p>"Impecable y discreto. Los vehículos están en perfecto estado y el trato recibido fue excelente. Muy recomendable."</p>
+                                </div>
+
+                                <div className="gm-review-card">
+                                    <div className="gm-review-header">
+                                        <div className="gm-avatar">PL</div>
+                                        <div>
+                                            <strong>Pablo L.</strong>
+                                            <span className="gm-date">Hace 3 semanas</span>
+                                        </div>
+                                        <div className="gm-stars">★★☆☆☆</div>
+                                    </div>
+                                    <p>"El coche era correcto pero llegó con algo de retraso y el depósito no estaba lleno del todo. Esperaba más por el precio."</p>
+                                </div>
+
+                                <div className="gm-review-card">
+                                    <div className="gm-review-header">
+                                        <div className="gm-avatar">MG</div>
+                                        <div>
+                                            <strong>Marta G.</strong>
+                                            <span className="gm-date">Hace 2 meses</span>
+                                        </div>
+                                        <div className="gm-stars">★★★★★</div>
+                                    </div>
+                                    <p>"El yate superó todas nuestras expectativas. Tripulación profesional y atención al detalle espectacular. Una experiencia única."</p>
+                                </div>
+
+                                <div className="gm-review-card">
+                                    <div className="gm-review-header">
+                                        <div className="gm-avatar">SJ</div>
+                                        <div>
+                                            <strong>Sara J.</strong>
+                                            <span className="gm-date">Hace 1 mes</span>
+                                        </div>
+                                        <div className="gm-stars">★★★★☆</div>
+                                    </div>
+                                    <p>"Muy buena experiencia en general. El helicóptero increíble, aunque el proceso de reserva online fue un poco confuso."</p>
+                                </div>
+
+                                <div className="gm-review-card">
+                                    <div className="gm-review-header">
+                                        <div className="gm-avatar">DR</div>
+                                        <div>
+                                            <strong>David R.</strong>
+                                            <span className="gm-date">Hace 3 meses</span>
+                                        </div>
+                                        <div className="gm-stars">★★★☆☆</div>
+                                    </div>
+                                    <p>"Bien pero mejorable. El coche era de lujo pero el servicio de entrega a domicilio no estaba disponible ese día."</p>
+                                </div>
+
+                                <div className="gm-review-card">
+                                    <div className="gm-review-header">
+                                        <div className="gm-avatar">CM</div>
+                                        <div>
+                                            <strong>Carlos M.</strong>
+                                            <span className="gm-date">Hace 3 semanas</span>
+                                        </div>
+                                        <div className="gm-stars">★★★★★</div>
+                                    </div>
+                                    <p>"Experiencia inmejorable. Reservé un helicóptero para una ocasión especial y todo fue perfecto. Staff muy atento a cada detalle."</p>
+                                </div>
+
+                                <div className="gm-review-card">
+                                    <div className="gm-review-header">
+                                        <div className="gm-avatar">LG</div>
+                                        <div>
+                                            <strong>Laura G.</strong>
+                                            <span className="gm-date">Hace 2 meses</span>
+                                        </div>
+                                        <div className="gm-stars">★★★★★</div>
+                                    </div>
+                                    <p>"Un servicio de 10. Alquiler para una boda y todo salió perfecto. El Ferrari era espectacular, volveremos a repetir."</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -81,27 +169,6 @@ export default function Home() {
                             <span className="price">Desde 1.200€/h</span>
                             <span className="sc-more">Ver flota →</span>
                         </Link>
-                    </div>
-                </div>
-            </section>
-
-            <section className="section alt" id="app">
-                <div className="wrap">
-                    <h2 className="sec-title">App <span>Android</span></h2>
-                    <p className="sec-sub">Gestiona tus reservas, explora el catálogo y contacta con soporte desde tu móvil.</p>
-                    <div className="app-features">
-                        <div className="app-feat"><i className="fa-solid fa-magnifying-glass"></i><span>Búsqueda avanzada</span></div>
-                        <div className="app-feat"><i className="fa-solid fa-calendar-check"></i><span>Reservas en tiempo real</span></div>
-                        <div className="app-feat"><i className="fa-solid fa-star"></i><span>Valoraciones y reseñas</span></div>
-                        <div className="app-feat"><i className="fa-solid fa-lock"></i><span>Login seguro</span></div>
-                        <div className="app-feat"><i className="fa-solid fa-bell"></i><span>Notificaciones push</span></div>
-                        <div className="app-feat"><i className="fa-solid fa-list-check"></i><span>Historial de reservas</span></div>
-                    </div>
-                    <div className="tech-row">
-                        <span className="tech"><i className="fa-brands fa-android"></i> Android Studio</span>
-                        <span className="tech">Kotlin / Java</span>
-                        <span className="tech"><i className="fa-solid fa-database"></i> Firebase</span>
-                        <span className="tech">MySQL</span>
                     </div>
                 </div>
             </section>
