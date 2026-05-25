@@ -28,12 +28,12 @@ export default function Auth() {
     };
 
     return (
-        <section className="hero" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <section className="hero page-fade-in" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="hero-bg" style={{ filter: 'brightness(0.4)' }}></div>
             <div className="hero-overlay"></div>
             
             <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '420px', padding: '0 20px' }}>
-                <div style={{ 
+                <div className="reveal-scale in" style={{ 
                     background: 'var(--card)', 
                     borderRadius: 'var(--r)', 
                     padding: '40px', 
@@ -96,7 +96,7 @@ export default function Auth() {
                             type="submit" 
                             className="btn-gold" 
                             disabled={loading}
-                            style={{ width: '100%', marginTop: '10px', padding: '14px', fontSize: '1rem', border: 'none', cursor: 'pointer', borderRadius: '6px' }}
+                            style={{ width: '100%', marginTop: '10px', padding: '14px', fontSize: '1rem', border: 'none', cursor: 'pointer', borderRadius: '6px', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', transform: loading ? 'scale(0.98)' : 'scale(1)' }}
                         >
                             {loading ? 'Procesando...' : (isLogin ? 'Iniciar Sesión' : 'Registrarse')}
                         </button>

@@ -9,6 +9,8 @@ import Services from './pages/Services';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import Cart from './pages/Cart';
+import ScrollToTop from './components/ScrollToTop';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -20,9 +22,18 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/cart" element={<Cart />} />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/cart" element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            } />
           </Routes>
+          <ScrollToTop />
           <Footer />
         </Router>
       </CartProvider>

@@ -37,9 +37,9 @@ export default function Navbar() {
                     ) : (
                         <Link to="/auth" onClick={() => setMenuOpen(false)} className="btn-gold" style={{padding: '8px 20px', borderRadius: '4px'}}>Login</Link>
                     )}
-                    <Link to="/cart" onClick={() => setMenuOpen(false)} className="cart-link" style={{position: 'relative', display: 'flex', alignItems: 'center', marginLeft: '10px'}}>
+                    <Link to="/cart" onClick={() => setMenuOpen(false)} className="cart-link" style={{position: 'relative', display: 'flex', alignItems: 'center', marginLeft: '10px', transition: 'var(--ease)'}}>
                         <ShoppingCart size={20} />
-                        {cart.length > 0 && <span style={{position: 'absolute', top: '-10px', right: '-10px', background: '#d4af37', color: 'white', borderRadius: '50%', padding: '2px 6px', fontSize: '12px'}}>{cart.length}</span>}
+                        {cart.length > 0 && <span className="badge-pulse" style={{position: 'absolute', top: '-10px', right: '-10px', background: 'var(--accent)', color: 'white', borderRadius: '50%', padding: '2px 6px', fontSize: '12px', transition: 'transform 0.3s ease'}}>{cart.length}</span>}
                     </Link>
                 </div>
                 <button className={`burger ${menuOpen ? 'open' : ''}`} id="burger" aria-label="Menú" onClick={() => setMenuOpen(!menuOpen)}>

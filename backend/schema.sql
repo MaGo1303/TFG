@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS order_items (
     item_id INT NOT NULL,
     quantity INT DEFAULT 1,
     price DECIMAL(10,2) NOT NULL,
+    start_date DATE,
+    end_date DATE,
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (item_id) REFERENCES items(id)
 );
@@ -85,3 +87,12 @@ INSERT INTO items (type, name, description, price, image_url) VALUES
 ('helicopter', 'AgustaWestland AW109', 'Cabina ejecutiva · Traslados rápidos (285 km/h).', 1500.00, '/img/agusta_aw109.jpg'),
 ('helicopter', 'AgustaWestland AW139', 'Gran capacidad · VIP · Hasta 15 pax.', 2800.00, '/img/agusta_aw109.jpg'),
 ('helicopter', 'Sikorsky S-76D', 'Estándar oro para ejecutivos · VIP corporativo.', 3000.00, '/img/cat_helicopteros.png');
+
+CREATE TABLE IF NOT EXISTS messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+

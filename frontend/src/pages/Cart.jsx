@@ -12,6 +12,22 @@ export default function Cart() {
     const [step, setStep] = useState('cart'); // 'cart' | 'payment'
     const [selectedCard, setSelectedCard] = useState('card1');
 
+    const calculateItemTotal = (item) => {
+        let days = 1;
+        if (item.startDate && item.endDate) {
+            const start = new Date(item.startDate);
+            const end = new Date(item.endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            days = diffDays > 0 ? diffDays : 1;
+        }
+        return parseFloat(item.price) * days * item.quantity;
+    };
+
+    useEffect(() => {
+        // ProtectedRoute handles redirection
+    }, [user]);
+
     const handleProceedToPayment = () => {
         if (!user) {
             navigate('/auth');
@@ -23,7 +39,7 @@ export default function Cart() {
     const handleCheckout = async () => {
         setLoading(true);
         try {
-            await axios.post('http://localhost:5000/api/orders', {
+            await axios.post(`${import.meta.env.VITE_API_URL}/orders`, {
                 items: cart,
                 totalPrice: cartTotal
             });
@@ -39,8 +55,8 @@ export default function Cart() {
     };
 
     return (
-        <>
-            <header className="page-header" style={{ paddingBottom: '30px' }}>
+        <div className="page-fade-in">
+            <header className="page-header reveal" style={{ paddingBottom: '30px' }}>
                 <div className="wrap">
                     <div className="breadcrumb">
                         <Link to="/"><i className="fa-solid fa-house"></i> Inicio</Link>
@@ -61,7 +77,7 @@ export default function Cart() {
             <main className="cat-main" style={{ minHeight: '60vh' }}>
                 <div className="wrap">
                     {cart.length === 0 ? (
-                        <div style={{ textAlign: 'center', marginTop: '60px', background: 'var(--card)', padding: '60px 20px', borderRadius: 'var(--r)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+                        <div className="reveal-scale in" style={{ textAlign: 'center', marginTop: '60px', background: 'var(--card)', padding: '60px 20px', borderRadius: 'var(--r)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
                             <i className="fa-solid fa-cart-shopping" style={{ fontSize: '3rem', color: 'var(--border-d)', marginBottom: '20px' }}></i>
                             <p style={{ fontSize: '1.2rem', color: 'var(--text-2)', marginBottom: '30px' }}>Tu carrito está vacío</p>
                             <button onClick={() => navigate('/services')} className="btn-gold">Explorar Servicios</button>
@@ -70,10 +86,10 @@ export default function Cart() {
                         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                             {/* STEP 1: CART */}
                             {step === 'cart' && (
-                                <div style={{ background: 'var(--card)', padding: '40px', borderRadius: 'var(--r)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-m)' }}>
+                                <div className="reveal-scale in" style={{ background: 'var(--card)', padding: '40px', borderRadius: 'var(--r)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-m)' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '40px' }}>
-                                        {cart.map(item => (
-                                            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg)', border: '1px solid var(--border)', padding: '20px', borderRadius: 'var(--r)' }}>
+                                        {cart.map((item, index) => (
+                                            <div key={item.id} className={`reveal delay-${Math.min((index % 5) * 100 + 100, 500)} in`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg)', border: '1px solid var(--border)', padding: '20px', borderRadius: 'var(--r)', transition: 'var(--ease)' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                                                     <div style={{ width: '80px', height: '60px', background: `url('${item.image_url}') center/cover no-repeat var(--bg2)`, borderRadius: '4px' }}>
                                                         {!item.image_url && <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center'}}><i className="fa-solid fa-image" style={{color:'var(--border-d)'}}></i></div>}
@@ -81,10 +97,16 @@ export default function Cart() {
                                                     <div>
                                                         <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text)', fontFamily: 'var(--serif)' }}>{item.name}</h4>
                                                         <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: 'var(--text-2)' }}>Cantidad: {item.quantity}</p>
+                                                        {item.startDate && item.endDate && (
+                                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-2)', marginTop: '4px' }}>
+                                                                <i className="fa-regular fa-calendar" style={{marginRight: '5px'}}></i>
+                                                                {item.startDate} a {item.endDate}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                                    <span style={{ fontWeight: '700', color: 'var(--accent)', fontSize: '1.1rem' }}>{parseFloat(item.price) * item.quantity}€</span>
+                                                    <span style={{ fontWeight: '700', color: 'var(--accent)', fontSize: '1.1rem' }}>{calculateItemTotal(item)}€</span>
                                                     <button onClick={() => removeFromCart(item.id)} style={{ background: 'transparent', border: 'none', color: '#e53e3e', cursor: 'pointer', fontSize: '1.2rem', padding: '5px', transition: 'var(--ease)' }} title="Eliminar">
                                                         <i className="fa-solid fa-trash"></i>
                                                     </button>
@@ -110,8 +132,8 @@ export default function Cart() {
 
                             {/* STEP 2: PAYMENT */}
                             {step === 'payment' && (
-                                <div style={{ display: 'flex', gap: '30px', alignItems: 'flex-start' }}>
-                                    <div style={{ flex: 2, background: 'var(--card)', padding: '40px', borderRadius: 'var(--r)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-m)' }}>
+                                <div className="reveal-scale in" style={{ display: 'flex', gap: '30px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                                    <div style={{ flex: 2, minWidth: '300px', background: 'var(--card)', padding: '40px', borderRadius: 'var(--r)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-m)' }}>
                                         <h3 style={{ fontFamily: 'var(--serif)', marginBottom: '20px', fontSize: '1.4rem' }}>Método de Pago</h3>
                                         
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px' }}>
@@ -206,6 +228,6 @@ export default function Cart() {
                     )}
                 </div>
             </main>
-        </>
+        </div>
     );
 }

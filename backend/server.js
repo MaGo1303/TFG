@@ -135,8 +135,8 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
         
         for (const item of items) {
             await connection.execute(
-                'INSERT INTO order_items (order_id, item_id, quantity, price) VALUES (?, ?, ?, ?)',
-                [orderId, item.id, item.quantity, item.price]
+                'INSERT INTO order_items (order_id, item_id, quantity, price, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)',
+                [orderId, item.id, item.quantity, item.price, item.startDate || null, item.endDate || null]
             );
         }
         
@@ -167,6 +167,84 @@ app.get('/api/orders/history', authenticateToken, async (req, res) => {
         res.json(orders);
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+const nodemailer = require('nodemailer');
+
+// Configure email transporter
+const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT || '465'),
+    secure: process.env.EMAIL_PORT === '465', // true for 465, false for other ports
+    auth: {
+        user: process.env.EMAIL_USER || '',
+        pass: process.env.EMAIL_PASS || ''
+    }
+});
+
+// Contact route
+app.post('/api/contact', async (req, res) => {
+    const { name, email, message } = req.body;
+
+    if (!name || !email || !message) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    try {
+        // 1. Guardar copia en la base de datos
+        await pool.execute(
+            'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)',
+            [name, email, message]
+        );
+
+        // 2. Si hay configuración de email y no son valores de prueba, intentar enviar el correo
+        const recipient = process.env.CONTACT_RECIPIENT || 'mj.martinezmajan@gmail.com';
+        const isPlaceholder = !process.env.EMAIL_USER || 
+                              process.env.EMAIL_USER === 'tu_correo_emisor@gmail.com' ||
+                              !process.env.EMAIL_PASS ||
+                              process.env.EMAIL_PASS === 'tu_contrase_de_aplicacion_gmail';
+
+        if (!isPlaceholder) {
+            try {
+                const mailOptions = {
+                    from: `"RoyalRent Contacto" <${process.env.EMAIL_USER}>`,
+                    to: recipient,
+                    subject: `Nuevo mensaje de contacto de ${name}`,
+                    text: `Has recibido un nuevo mensaje desde el formulario de contacto de RoyalRent:\n\n` +
+                          `Nombre: ${name}\n` +
+                          `Email: ${email}\n` +
+                          `Mensaje: ${message}\n\n` +
+                          `Fecha: ${new Date().toLocaleString()}`,
+                    html: `
+                        <h2>Nuevo mensaje de contacto - RoyalRent</h2>
+                        <p><strong>Nombre:</strong> ${name}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Mensaje:</strong></p>
+                        <blockquote style="background: #f4f4f4; padding: 15px; border-left: 5px solid #1a2d5a; color: #333;">
+                            ${message.replace(/\n/g, '<br>')}
+                        </blockquote>
+                        <p style="font-size: 0.8em; color: #777;">Recibido el ${new Date().toLocaleString()}</p>
+                    `
+                };
+
+                await transporter.sendMail(mailOptions);
+                res.status(201).json({ message: 'Mensaje guardado y correo enviado correctamente' });
+            } catch (emailError) {
+                console.error('⚠️ Error al enviar el correo (SMTP):', emailError);
+                res.status(201).json({ 
+                    message: 'Mensaje guardado en la base de datos, pero falló el envío del correo electrónico (revisa las credenciales SMTP en el .env).' 
+                });
+            }
+        } else {
+            console.log('⚠️ Configuración de email ausente o con valores de prueba. El mensaje se guardó en la BD pero no se envió correo.');
+            res.status(201).json({ 
+                message: 'Mensaje guardado en la base de datos. Configura las variables SMTP en tu .env para activar el envío de correos.' 
+            });
+        }
+    } catch (error) {
+        console.error('Error en /api/contact:', error);
+        res.status(500).json({ error: 'Error del servidor al procesar el mensaje de contacto' });
     }
 });
 

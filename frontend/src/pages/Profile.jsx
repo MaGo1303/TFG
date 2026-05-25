@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { useScrollReveal } from '../hooks/useAnimations';
 
 export default function Profile() {
+    useScrollReveal();
     const { user, setUser, logout } = useAuth();
     const navigate = useNavigate();
     const [history, setHistory] = useState([]);
@@ -11,13 +13,10 @@ export default function Profile() {
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        if (!user) {
-            navigate('/auth');
-            return;
-        }
+        if (!user) return;
 
         // Fetch history
-        axios.get('http://localhost:5000/api/orders/history')
+        axios.get(`${import.meta.env.VITE_API_URL}/orders/history`)
             .then(res => setHistory(res.data))
             .catch(err => console.error(err));
     }, [user, navigate]);
@@ -25,7 +24,7 @@ export default function Profile() {
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            await axios.put('http://localhost:5000/api/user/profile', formData);
+            await axios.put(`${import.meta.env.VITE_API_URL}/user/profile`, formData);
             setMessage('Perfil actualizado correctamente');
             setUser({ ...user, name: formData.name, email: formData.email });
         } catch {
@@ -36,8 +35,8 @@ export default function Profile() {
     if (!user) return null;
 
     return (
-        <>
-            <header className="page-header" style={{ paddingBottom: '30px' }}>
+        <div className="page-fade-in">
+            <header className="page-header reveal" style={{ paddingBottom: '30px' }}>
                 <div className="wrap">
                     <div className="breadcrumb">
                         <Link to="/"><i className="fa-solid fa-house"></i> Inicio</Link>
@@ -54,7 +53,7 @@ export default function Profile() {
                     <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                         
                         {/* LEFT: UPDATE PROFILE */}
-                        <div style={{ flex: '1', minWidth: '320px', background: 'var(--card)', padding: '35px', borderRadius: 'var(--r)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-m)' }}>
+                        <div className="reveal-left" style={{ flex: '1', minWidth: '320px', background: 'var(--card)', padding: '35px', borderRadius: 'var(--r)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-m)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px' }}>
                                 <div style={{ width: '50px', height: '50px', background: 'var(--accent)', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}>
                                     {user.name.charAt(0).toUpperCase()}
@@ -113,7 +112,7 @@ export default function Profile() {
                         </div>
 
                         {/* RIGHT: HISTORY */}
-                        <div style={{ flex: '2', minWidth: '320px' }}>
+                        <div className="reveal-right" style={{ flex: '2', minWidth: '320px' }}>
                             <h3 style={{ fontFamily: 'var(--serif)', fontSize: '1.6rem', color: 'var(--text)', marginBottom: '25px' }}>Historial de Reservas</h3>
                             
                             {history.length === 0 ? (
@@ -162,6 +161,6 @@ export default function Profile() {
                     </div>
                 </div>
             </main>
-        </>
+        </div>
     );
 }

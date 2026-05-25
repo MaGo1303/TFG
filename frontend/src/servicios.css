@@ -124,6 +124,10 @@
   position: relative;
   overflow: hidden;
   background-color: var(--bg2);
+  transition: background-size 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.listing-card:hover .listing-img {
+  background-size: 110% !important;
 }
 .listing-img i {
   font-size: 2.8rem;

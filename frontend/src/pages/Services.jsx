@@ -2,13 +2,72 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useCart } from '../context/useCart';
+import { useScrollReveal } from '../hooks/useAnimations';
+
+const ServiceCard = ({ item, index, handleAddToCart }) => {
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+
+    const onAdd = () => {
+        if (!startDate || !endDate) {
+            alert('Por favor selecciona las fechas de alquiler.');
+            return;
+        }
+        if (new Date(startDate) >= new Date(endDate)) {
+            alert('La fecha de fin debe ser posterior a la de inicio.');
+            return;
+        }
+        handleAddToCart({ ...item, startDate, endDate });
+        setStartDate('');
+        setEndDate('');
+    };
+
+    return (
+        <div className={`listing-card reveal delay-${Math.min((index % 5) * 100 + 100, 500)}`}>
+            <div className="listing-img" style={{ backgroundImage: `url('${item.image_url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                {!item.image_url && <i className="fa-solid fa-image"></i>}
+                <div className="listing-type">{item.type.toUpperCase()}</div>
+            </div>
+            <div className="listing-content">
+                <h3 className="listing-title">{item.name}</h3>
+                <p className="listing-desc">{item.description}</p>
+                <div className="listing-footer" style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <div style={{flex: 1}}>
+                            <label style={{fontSize: '0.75rem', color: 'var(--text-3)'}}>Recogida</label>
+                            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={{width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg2)', color: 'var(--text)', fontSize: '0.85rem'}} min={new Date().toISOString().split('T')[0]} />
+                        </div>
+                        <div style={{flex: 1}}>
+                            <label style={{fontSize: '0.75rem', color: 'var(--text-3)'}}>Devolución</label>
+                            <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={{width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg2)', color: 'var(--text)', fontSize: '0.85rem'}} min={startDate || new Date().toISOString().split('T')[0]} />
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className="listing-price">{item.price}€<span>/día</span></div>
+                        <button onClick={onAdd} className="btn-listing" style={{ cursor: 'pointer', border: 'none' }}>
+                            Añadir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function Services() {
+    useScrollReveal();
     const [items, setItems] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
     const { addToCart } = useCart();
 
     const filter = searchParams.get('type') || 'all';
+    const [toastMsg, setToastMsg] = useState(null);
+
+    const handleAddToCart = (item) => {
+        addToCart(item);
+        setToastMsg(`${item.name} añadido al carrito`);
+        setTimeout(() => setToastMsg(null), 3000);
+    };
 
     const handleFilter = (cat) => {
         if (cat === 'all') {
@@ -22,8 +81,8 @@ export default function Services() {
     useEffect(() => {
         const fetchItems = async () => {
             const url = filter === 'all' 
-                ? 'http://localhost:5000/api/items' 
-                : `http://localhost:5000/api/items?type=${filter}`;
+                ? `${import.meta.env.VITE_API_URL}/items` 
+                : `${import.meta.env.VITE_API_URL}/items?type=${filter}`;
             try {
                 const res = await axios.get(url);
                 setItems(res.data);
@@ -35,8 +94,8 @@ export default function Services() {
     }, [filter]);
 
     return (
-        <>
-            <header className="page-header">
+        <div className="page-fade-in">
+            <header className="page-header reveal">
                 <div className="wrap">
                     <div className="breadcrumb">
                         <Link to="/"><i className="fa-solid fa-house"></i> Inicio</Link>
@@ -80,51 +139,42 @@ export default function Services() {
                         </div>
 
                         <div className="listing-grid">
-                            {items.map(item => (
-                                <div key={item.id} className="listing-card">
-                                    <div className="listing-img" style={{ backgroundImage: `url('${item.image_url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                                        {/* Fallback si no hay imagen real en la DB */}
-                                        {!item.image_url && <i className="fa-solid fa-image"></i>}
-                                    </div>
-                                    <div className="listing-info">
-                                        <div className="listing-top">
-                                            <h3>{item.name}</h3>
-                                            <div className="listing-stars">★★★★★ <span>5.0</span></div>
-                                        </div>
-                                        <p>{item.description}</p>
-                                        
-                                        <div className="listing-specs">
-                                            {item.type === 'car' && <>
-                                                <span><i className="fa-solid fa-road"></i> Premium</span>
-                                                <span><i className="fa-solid fa-users"></i> Biplaza/Plazas</span>
-                                            </>}
-                                            {item.type === 'yacht' && <>
-                                                <span><i className="fa-solid fa-ruler-horizontal"></i> Gran eslora</span>
-                                                <span><i className="fa-solid fa-users"></i> Tripulación</span>
-                                            </>}
-                                            {item.type === 'helicopter' && <>
-                                                <span><i className="fa-solid fa-location-dot"></i> Larga distancia</span>
-                                                <span><i className="fa-solid fa-users"></i> VIP</span>
-                                            </>}
-                                        </div>
-
-                                        <div className="listing-footer" style={{ marginTop: '15px' }}>
-                                            <div className="listing-price">{item.price}€<span>/día</span></div>
-                                            <button onClick={() => addToCart(item)} className="btn-listing" style={{ cursor: 'pointer', border: 'none' }}>
-                                                Añadir
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                            {items.map((item, index) => (
+                                <ServiceCard key={item.id} item={item} index={index} handleAddToCart={handleAddToCart} />
                             ))}
                         </div>
                         
                         {items.length === 0 && (
                             <p style={{textAlign: 'center', marginTop: '40px', color: 'var(--text-3)'}}>No hay servicios disponibles para esta categoría en este momento.</p>
                         )}
+                        
+                        {/* Toast Notification */}
+                        <div style={{
+                            position: 'fixed',
+                            bottom: '30px',
+                            left: '50%',
+                            transform: `translateX(-50%) ${toastMsg ? 'translateY(0)' : 'translateY(100px)'}`,
+                            opacity: toastMsg ? 1 : 0,
+                            visibility: toastMsg ? 'visible' : 'hidden',
+                            background: '#1b4a32',
+                            color: '#fff',
+                            padding: '12px 24px',
+                            borderRadius: '8px',
+                            boxShadow: 'var(--shadow-m)',
+                            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                            zIndex: 100,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            fontWeight: '500',
+                            fontSize: '0.9rem'
+                        }}>
+                            <i className="fa-solid fa-circle-check" style={{ color: '#4ade80' }}></i>
+                            {toastMsg}
+                        </div>
                     </section>
                 </div>
             </main>
-        </>
+        </div>
     );
 }

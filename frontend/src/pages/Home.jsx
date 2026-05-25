@@ -1,6 +1,42 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { useScrollReveal, useCounter } from '../hooks/useAnimations';
 
 export default function Home() {
+    useScrollReveal();
+    const stats500 = useCounter(500, 2000);
+    const stats3 = useCounter(3, 1500);
+
+    const [nombre, setNombre] = useState('');
+    const [email, setEmail] = useState('');
+    const [mensaje, setMensaje] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [statusMsg, setStatusMsg] = useState(null);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setStatusMsg(null);
+        try {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/contact`, {
+                name: nombre,
+                email,
+                message: mensaje
+            });
+            setStatusMsg({ type: 'success', text: res.data.message });
+            setNombre('');
+            setEmail('');
+            setMensaje('');
+        } catch (error) {
+            console.error('Error sending message:', error);
+            const errorText = error.response?.data?.error || 'Hubo un error al enviar el mensaje. Inténtalo de nuevo.';
+            setStatusMsg({ type: 'error', text: errorText });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <>
             <section className="hero" id="inicio">
@@ -9,19 +45,19 @@ export default function Home() {
                 </video>
                 <div className="hero-overlay"></div>
                 <div className="hero-content">
-                    <div className="hero-eyebrow">
+                    <div className="hero-eyebrow reveal-scale">
                         <span className="eyebrow-line"></span>
                         <span className="eyebrow-text">Proyecto Fin de Ciclo · DAM 2025</span>
                     </div>
-                    <h1>El Lujo que<br /><em>Mereces</em></h1>
-                    <p>RoyalRent centraliza el alquiler de vehículos y servicios premium en una sola plataforma.</p>
-                    <div className="hero-btns">
+                    <h1 className="reveal delay-100">El Lujo que<br /><em>Mereces</em></h1>
+                    <p className="reveal delay-200">RoyalRent centraliza el alquiler de vehículos y servicios premium en una sola plataforma.</p>
+                    <div className="hero-btns reveal delay-300">
                         <Link to="/services" className="btn-gold">Explorar Servicios</Link>
                     </div>
-                    <div className="hero-stats">
-                        <div className="hstat"><strong>500+</strong><span>Servicios</span></div>
+                    <div className="hero-stats reveal delay-400">
+                        <div className="hstat" ref={stats500.countRef}><strong>{stats500.count}+</strong><span>Servicios</span></div>
                         <div className="hstat-sep"></div>
-                        <div className="hstat"><strong>3</strong><span>Categorías</span></div>
+                        <div className="hstat" ref={stats3.countRef}><strong>{stats3.count}</strong><span>Categorías</span></div>
                         <div className="hstat-sep"></div>
                         <div className="hstat"><strong>24/7</strong><span>Soporte</span></div>
                     </div>
@@ -145,24 +181,24 @@ export default function Home() {
 
             <section className="section" id="servicios">
                 <div className="wrap">
-                    <h2 className="sec-title">Nuestros <span>Servicios</span></h2>
-                    <p className="sec-sub">Todo lo que necesitas para una experiencia de lujo, en un solo lugar.</p>
+                    <h2 className="sec-title reveal">Nuestros <span>Servicios</span></h2>
+                    <p className="sec-sub reveal delay-100">Todo lo que necesitas para una experiencia de lujo, en un solo lugar.</p>
                     <div className="services-grid">
-                        <Link className="service-card" to="/services?type=car">
+                        <Link className="service-card reveal delay-100" to="/services?type=car">
                             <i className="fa-solid fa-car-side"></i>
                             <h3>Coches de Lujo</h3>
                             <p>Ferrari, Lamborghini, Rolls-Royce y más modelos premium.</p>
                             <span className="price">Desde 500€/día</span>
                             <span className="sc-more">Ver modelos →</span>
                         </Link>
-                        <Link className="service-card" to="/services?type=yacht">
+                        <Link className="service-card reveal delay-200" to="/services?type=yacht">
                             <i className="fa-solid fa-sailboat"></i>
                             <h3>Yates & Barcos</h3>
                             <p>Navega en embarcaciones exclusivas con tripulación.</p>
                             <span className="price">Desde 2.000€/día</span>
                             <span className="sc-more">Ver embarcaciones →</span>
                         </Link>
-                        <Link className="service-card" to="/services?type=helicopter">
+                        <Link className="service-card reveal delay-300" to="/services?type=helicopter">
                             <i className="fa-solid fa-helicopter"></i>
                             <h3>Helicópteros</h3>
                             <p>Traslados VIP y tours aéreos a destinos exclusivos.</p>
@@ -175,10 +211,10 @@ export default function Home() {
 
             <section className="section" id="equipo">
                 <div className="wrap">
-                    <h2 className="sec-title">El <span>Equipo</span></h2>
-                    <p className="sec-sub">PFC desarrollado por dos estudiantes de Desarrollo de Aplicaciones Multiplataforma.</p>
+                    <h2 className="sec-title reveal">El <span>Equipo</span></h2>
+                    <p className="sec-sub reveal delay-100">PFC desarrollado por dos estudiantes de Desarrollo de Aplicaciones Multiplataforma.</p>
                     <div className="team-row">
-                        <div className="team-card">
+                        <div className="team-card reveal delay-100">
                             <div className="avatar gold-av">GV</div>
                             <h3>Gonzalo Velasco</h3>
                             <p>Desarrollo Android · Backend · MySQL</p>
@@ -186,7 +222,7 @@ export default function Home() {
                                 <span>Android</span><span>Java/Kotlin</span><span>MySQL</span>
                             </div>
                         </div>
-                        <div className="team-card">
+                        <div className="team-card reveal delay-200">
                             <div className="avatar purple-av">MJ</div>
                             <h3>Miguel José</h3>
                             <p>Desarrollo Web · UI/UX · Firebase</p>
@@ -199,17 +235,60 @@ export default function Home() {
             </section>
             <section className="section alt" id="contacto">
                 <div className="wrap narrow">
-                    <h2 className="sec-title">¿Hablamos?</h2>
-                    <p className="sec-sub">Cualquier consulta sobre el proyecto o los servicios, escríbenos.</p>
-                    <form className="form" id="contactForm">
+                    <h2 className="sec-title reveal">¿Hablamos?</h2>
+                    <p className="sec-sub reveal delay-100">Cualquier consulta sobre el proyecto o los servicios, escríbenos.</p>
+                    <form className="form reveal delay-200" id="contactForm" onSubmit={handleSubmit}>
                         <div className="form-row">
-                            <input type="text" id="nombre" placeholder="Tu nombre" required />
-                            <input type="email" id="email" placeholder="Tu email" required />
+                            <input 
+                                type="text" 
+                                id="nombre" 
+                                placeholder="Tu nombre" 
+                                value={nombre}
+                                onChange={(e) => setNombre(e.target.value)}
+                                required 
+                                disabled={loading}
+                            />
+                            <input 
+                                type="email" 
+                                id="email" 
+                                placeholder="Tu email" 
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required 
+                                disabled={loading}
+                            />
                         </div>
-                        <textarea id="mensaje" placeholder="Tu mensaje..." rows="4" required></textarea>
-                        <button type="submit" className="btn-gold" id="submitBtn">
-                            <i className="fa-solid fa-paper-plane"></i> Enviar
+                        <textarea 
+                            id="mensaje" 
+                            placeholder="Tu mensaje..." 
+                            rows="4" 
+                            value={mensaje}
+                            onChange={(e) => setMensaje(e.target.value)}
+                            required 
+                            disabled={loading}
+                        ></textarea>
+                        <button type="submit" className="btn-gold" id="submitBtn" disabled={loading} style={{ cursor: loading ? 'not-allowed' : 'pointer' }}>
+                            <i className="fa-solid fa-paper-plane"></i> {loading ? 'Enviando...' : 'Enviar'}
                         </button>
+                        
+                        {statusMsg && (
+                            <div className={`status-message ${statusMsg.type}`} style={{
+                                marginTop: '20px',
+                                padding: '12px 16px',
+                                borderRadius: '4px',
+                                background: statusMsg.type === 'success' ? 'rgba(27, 74, 50, 0.4)' : 'rgba(107, 33, 33, 0.4)',
+                                color: '#fff',
+                                border: `1px solid ${statusMsg.type === 'success' ? '#2e7d4f' : '#b23b3b'}`,
+                                fontSize: '0.9em',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px'
+                            }}>
+                                <i className={statusMsg.type === 'success' ? "fa-solid fa-circle-check" : "fa-solid fa-circle-xmark"}></i>
+                                <span>{statusMsg.text}</span>
+                            </div>
+                        )}
                     </form>
                 </div>
             </section>

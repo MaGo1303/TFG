@@ -17,21 +17,21 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        const res = await axios.post('http://localhost:5000/api/login', { email, password });
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/login`, { email, password });
         localStorage.setItem('token', res.data.token);
         setToken(res.data.token);
         setUser(res.data.user);
     };
 
     const register = async (name, email, password) => {
-        await axios.post('http://localhost:5000/api/register', { name, email, password });
+        await axios.post(`${import.meta.env.VITE_API_URL}/register`, { name, email, password });
         await login(email, password);
     };
 
     useEffect(() => {
         if (token) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            axios.get('http://localhost:5000/api/user/profile')
+            axios.get(`${import.meta.env.VITE_API_URL}/user/profile`)
                 .then(res => {
                     setUser(res.data);
                 })
