@@ -32,7 +32,7 @@ export default function Navbar() {
                     {user ? (
                         <>
                             <Link to="/profile" onClick={() => setMenuOpen(false)}><User size={18} style={{marginRight: '5px', verticalAlign: 'middle'}}/> {user.name}</Link>
-                            <button onClick={() => {logout(); setMenuOpen(false);}} className="btn-ghost" style={{padding: '5px 15px', border: 'none', background: 'transparent', color: 'white', cursor: 'pointer'}}><LogOut size={18}/></button>
+                            <button type="button" onClick={() => {logout(); setMenuOpen(false);}} className="btn-ghost" style={{padding: '5px 15px', border: 'none', background: 'transparent', color: 'white', cursor: 'pointer'}}><LogOut size={18}/></button>
                         </>
                     ) : (
                         <Link to="/auth" onClick={() => setMenuOpen(false)} className="btn-gold" style={{padding: '8px 20px', borderRadius: '4px'}}>Login</Link>

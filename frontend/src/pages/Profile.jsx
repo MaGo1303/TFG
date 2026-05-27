@@ -14,12 +14,10 @@ export default function Profile() {
 
     useEffect(() => {
         if (!user) return;
-
-        // Fetch history
         axios.get(`${import.meta.env.VITE_API_URL}/orders/history`)
             .then(res => setHistory(res.data))
             .catch(err => console.error(err));
-    }, [user, navigate]);
+    }, [user]);
 
     const handleUpdate = async (e) => {
         e.preventDefault();

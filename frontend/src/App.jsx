@@ -10,29 +10,36 @@ import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import Cart from './pages/Cart';
 import ScrollToTop from './components/ScrollToTop';
+import ScrollProgress from './components/ScrollProgress';
+import CustomCursor from './components/CustomCursor';
 import ProtectedRoute from './components/ProtectedRoute';
+import PageTransition from './components/PageTransition';
 
 function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
+          <CustomCursor />
+          <ScrollProgress />
           <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-            <Route path="/cart" element={
-              <ProtectedRoute>
-                <Cart />
-              </ProtectedRoute>
-            } />
-          </Routes>
+          <PageTransition>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/cart" element={
+                <ProtectedRoute>
+                  <Cart />
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </PageTransition>
           <ScrollToTop />
           <Footer />
         </Router>

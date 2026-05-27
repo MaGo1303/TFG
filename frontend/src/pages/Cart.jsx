@@ -24,10 +24,6 @@ export default function Cart() {
         return parseFloat(item.price) * days * item.quantity;
     };
 
-    useEffect(() => {
-        // ProtectedRoute handles redirection
-    }, [user]);
-
     const handleProceedToPayment = () => {
         if (!user) {
             navigate('/auth');

@@ -1,12 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useScrollReveal, useCounter } from '../hooks/useAnimations';
+import { useScrollReveal, useCountUp } from '../hooks/useAnimations';
+import TiltCard from '../components/TiltCard';
+
+const galleryItems = [
+    { img: '/img/ferrari_488.png', name: 'Ferrari 488 GTB', price: 'Desde 800€/día' },
+    { img: '/img/Ferrari_roma.jpg', name: 'Ferrari Roma', price: 'Desde 750€/día' },
+    { img: '/img/ferrari_sf90.jpg', name: 'Ferrari SF90 Stradale', price: 'Desde 1.200€/día' },
+    { img: '/img/bentley_continental.jpg', name: 'Bentley Continental GT', price: 'Desde 600€/día' },
+    { img: '/img/rolls_ghost.jpg', name: 'Rolls-Royce Ghost', price: 'Desde 1.000€/día' },
+    { img: '/img/azimut_80.jpg', name: 'Azimut 80', price: 'Desde 3.500€/día' },
+    { img: '/img/sunseeker_75.jpg', name: 'Sunseeker 75', price: 'Desde 4.000€/día' },
+    { img: '/img/ferretti_780.jpg', name: 'Ferretti 780', price: 'Desde 3.800€/día' },
+    { img: '/img/bell_429.jpg', name: 'Bell 429', price: 'Desde 1.500€/h' },
+    { img: '/img/airbus_h145.jpg', name: 'Airbus H145', price: 'Desde 1.800€/h' },
+    { img: '/img/agusta_aw109.jpg', name: 'Agusta AW109', price: 'Desde 2.000€/h' },
+];
+
+function StatItem({ target, suffix, label }) {
+    const { ref, count } = useCountUp(target, 2000);
+    return (
+        <div className="stat-item" ref={ref}>
+            <div className="stat-number">{count}{suffix}</div>
+            <div className="stat-label">{label}</div>
+        </div>
+    );
+}
 
 export default function Home() {
     useScrollReveal();
-    const stats500 = useCounter(500, 2000);
-    const stats3 = useCounter(3, 1500);
 
     const [nombre, setNombre] = useState('');
     const [email, setEmail] = useState('');
@@ -43,28 +66,17 @@ export default function Home() {
                 <video className="hero-video" autoPlay muted loop playsInline poster="/img/banner.png">
                     <source src="/img/hero-bg.mp4" type="video/mp4" />
                 </video>
-                <div className="hero-overlay"></div>
+                <div className="hero-overlay" />
                 <div className="hero-content">
-                    <div className="hero-eyebrow reveal-scale">
+                    <div className="hero-eyebrow reveal-scale in">
                         <span className="eyebrow-line"></span>
                         <span className="eyebrow-text">Proyecto Fin de Ciclo · DAM 2025</span>
                     </div>
-                    <h1 className="reveal delay-100">El Lujo que<br /><em>Mereces</em></h1>
-                    <p className="reveal delay-200">RoyalRent centraliza el alquiler de vehículos y servicios premium en una sola plataforma.</p>
-                    <div className="hero-btns reveal delay-300">
+                    <h1 className="reveal delay-100 in">El Lujo que<br /><em>Mereces</em></h1>
+                    <p className="reveal delay-200 in">RoyalRent centraliza el alquiler de vehículos y servicios premium en una sola plataforma.</p>
+                    <div className="hero-btns reveal delay-300 in">
                         <Link to="/services" className="btn-gold">Explorar Servicios</Link>
                     </div>
-                    <div className="hero-stats reveal delay-400">
-                        <div className="hstat" ref={stats500.countRef}><strong>{stats500.count}+</strong><span>Servicios</span></div>
-                        <div className="hstat-sep"></div>
-                        <div className="hstat" ref={stats3.countRef}><strong>{stats3.count}</strong><span>Categorías</span></div>
-                        <div className="hstat-sep"></div>
-                        <div className="hstat"><strong>24/7</strong><span>Soporte</span></div>
-                    </div>
-                </div>
-                <div className="hero-scroll-hint">
-                    <span>Scroll</span>
-                    <div className="scroll-line"></div>
                 </div>
             </section>
 
@@ -179,32 +191,67 @@ export default function Home() {
                 </div>
             </section>
 
+            <section className="section stats-section reveal" id="stats">
+                <div className="wrap">
+                    <div className="stats-grid">
+                        <StatItem target={200} suffix="+" label="Clientes satisfechos" />
+                        <StatItem target={15} suffix="+" label="Vehículos premium" />
+                        <StatItem target={5} suffix="★" label="Valoración media" />
+                        <StatItem target={3} suffix="" label="Años de experiencia" />
+                    </div>
+                </div>
+            </section>
+
+            <section className="section mesh-1" id="galeria">
+                <div className="wrap">
+                    <h2 className="sec-title reveal">Nuestra <span>Flota</span></h2>
+                    <p className="sec-sub reveal delay-100">Descubre algunos de nuestros vehículos y embarcaciones más exclusivos.</p>
+                    <div className="horizontal-gallery reveal delay-200">
+                        {galleryItems.map((item, i) => (
+                            <div className="gallery-item" key={i}>
+                                <img src={item.img} alt={item.name} loading="lazy" />
+                                <div className="gallery-item-overlay">
+                                    <h3>{item.name}</h3>
+                                    <span>{item.price}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             <section className="section" id="servicios">
                 <div className="wrap">
                     <h2 className="sec-title reveal">Nuestros <span>Servicios</span></h2>
                     <p className="sec-sub reveal delay-100">Todo lo que necesitas para una experiencia de lujo, en un solo lugar.</p>
                     <div className="services-grid">
-                        <Link className="service-card reveal delay-100" to="/services?type=car">
-                            <i className="fa-solid fa-car-side"></i>
-                            <h3>Coches de Lujo</h3>
-                            <p>Ferrari, Lamborghini, Rolls-Royce y más modelos premium.</p>
-                            <span className="price">Desde 500€/día</span>
-                            <span className="sc-more">Ver modelos →</span>
-                        </Link>
-                        <Link className="service-card reveal delay-200" to="/services?type=yacht">
-                            <i className="fa-solid fa-sailboat"></i>
-                            <h3>Yates & Barcos</h3>
-                            <p>Navega en embarcaciones exclusivas con tripulación.</p>
-                            <span className="price">Desde 2.000€/día</span>
-                            <span className="sc-more">Ver embarcaciones →</span>
-                        </Link>
-                        <Link className="service-card reveal delay-300" to="/services?type=helicopter">
-                            <i className="fa-solid fa-helicopter"></i>
-                            <h3>Helicópteros</h3>
-                            <p>Traslados VIP y tours aéreos a destinos exclusivos.</p>
-                            <span className="price">Desde 1.200€/h</span>
-                            <span className="sc-more">Ver flota →</span>
-                        </Link>
+                        <TiltCard className="service-card reveal delay-100">
+                            <Link to="/services?type=car" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                                <i className="fa-solid fa-car-side"></i>
+                                <h3>Coches de Lujo</h3>
+                                <p>Ferrari, Lamborghini, Rolls-Royce y más modelos premium.</p>
+                                <span className="price">Desde 500€/día</span>
+                                <span className="sc-more">Ver modelos →</span>
+                            </Link>
+                        </TiltCard>
+                        <TiltCard className="service-card reveal delay-200">
+                            <Link to="/services?type=yacht" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                                <i className="fa-solid fa-sailboat"></i>
+                                <h3>Yates & Barcos</h3>
+                                <p>Navega en embarcaciones exclusivas con tripulación.</p>
+                                <span className="price">Desde 2.000€/día</span>
+                                <span className="sc-more">Ver embarcaciones →</span>
+                            </Link>
+                        </TiltCard>
+                        <TiltCard className="service-card reveal delay-300">
+                            <Link to="/services?type=helicopter" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                                <i className="fa-solid fa-helicopter"></i>
+                                <h3>Helicópteros</h3>
+                                <p>Traslados VIP y tours aéreos a destinos exclusivos.</p>
+                                <span className="price">Desde 1.200€/h</span>
+                                <span className="sc-more">Ver flota →</span>
+                            </Link>
+                        </TiltCard>
                     </div>
                 </div>
             </section>

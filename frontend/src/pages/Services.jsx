@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useCart } from '../context/useCart';
 import { useScrollReveal } from '../hooks/useAnimations';
+import TiltCard from '../components/TiltCard';
 
 const ServiceCard = ({ item, index, handleAddToCart }) => {
     const [startDate, setStartDate] = useState('');
@@ -23,7 +24,7 @@ const ServiceCard = ({ item, index, handleAddToCart }) => {
     };
 
     return (
-        <div className={`listing-card reveal delay-${Math.min((index % 5) * 100 + 100, 500)}`}>
+        <TiltCard className={`listing-card reveal delay-${Math.min((index % 5) * 100 + 100, 500)}`}>
             <div className="listing-img" style={{ backgroundImage: `url('${item.image_url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 {!item.image_url && <i className="fa-solid fa-image"></i>}
                 <div className="listing-type">{item.type.toUpperCase()}</div>
@@ -50,7 +51,7 @@ const ServiceCard = ({ item, index, handleAddToCart }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </TiltCard>
     );
 };
 

@@ -34,9 +34,24 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Auth routes
+// Basic validation helpers
+const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validatePassword = (password) => password && password.length >= 6;
+
 app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
+
+        if (!name || !name.trim()) {
+            return res.status(400).json({ error: 'El nombre es obligatorio' });
+        }
+        if (!email || !validateEmail(email)) {
+            return res.status(400).json({ error: 'Formato de email inválido' });
+        }
+        if (!validatePassword(password)) {
+            return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         
         const [result] = await pool.execute(
@@ -57,7 +72,14 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
+        if (!email || !validateEmail(email)) {
+            return res.status(400).json({ error: 'Formato de email inválido' });
+        }
+        if (!password) {
+            return res.status(400).json({ error: 'La contraseña es obligatoria' });
+        }
+
         const [users] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
         if (users.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
         
@@ -246,6 +268,12 @@ app.post('/api/contact', async (req, res) => {
         console.error('Error en /api/contact:', error);
         res.status(500).json({ error: 'Error del servidor al procesar el mensaje de contacto' });
     }
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
 });
 
 const PORT = process.env.PORT || 5000;
