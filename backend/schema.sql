@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    role ENUM('user', 'admin') DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -75,8 +76,8 @@ INSERT INTO items (type, name, description, price, image_url) VALUES
 ('yacht', 'Ferretti 850', '26 m · Máximo lujo · 4 suites completas.', 4200.00, '/img/ferretti_780.jpg'),
 ('yacht', 'Riva 76 Perseo', '23.3 m · Diseño icónico e inconfundible.', 3500.00, '/img/ferretti_780.jpg'),
 ('yacht', 'Riva 90 Argo', '28.5 m · Obra maestra del diseño náutico.', 6500.00, '/img/ferretti_780.jpg'),
-('yacht', 'Princess X95', '29 m · Super flybridge · Volumen excepcional.', 7000.00, '/img/cat_yates.png'),
-('yacht', 'Oasis 40M Benetti', '40 m · Superyate · Beach club espectacular.', 15000.00, '/img/cat_yates.png'),
+('yacht', 'Princess X95', '29 m · Super flybridge · Volumen excepcional.', 7000.00, '/img/azimut_80.jpg'),
+('yacht', 'Oasis 40M Benetti', '40 m · Superyate · Beach club espectacular.', 15000.00, '/img/sunseeker_75.jpg'),
 
 -- HELICÓPTEROS (8)
 ('helicopter', 'Bell 429', 'Bimotor ligero de alto rendimiento · Hasta 7 pax.', 1200.00, '/img/bell_429.jpg'),
@@ -95,4 +96,9 @@ CREATE TABLE IF NOT EXISTS messages (
     message TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Admin user (password: admin123)
+INSERT INTO users (name, email, password, role) VALUES
+('Admin RoyalRent', 'admin@royalrent.com', '$2b$10$RyVtjZZvdEqOYzK0.GTDzO0..1XNq8y0aBzDrxy0h.TIyN52D8CF2', 'admin')
+ON DUPLICATE KEY UPDATE role = 'admin';
 

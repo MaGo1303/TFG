@@ -1,8 +1,17 @@
 import { useRef, useCallback } from 'react';
+import { motion, useSpring, useMotionValue, useTransform } from 'framer-motion';
 
 export default function TiltCard({ children, className = '', style = {}, as = 'div' }) {
     const ref = useRef(null);
     const isTouchRef = useRef(false);
+
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+
+    const springConfig = { stiffness: 150, damping: 15, mass: 0.5 };
+    const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), springConfig);
+    const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), springConfig);
+    const scale = useSpring(1, springConfig);
 
     const handleTouchStart = useCallback(() => {
         isTouchRef.current = true;
@@ -11,19 +20,18 @@ export default function TiltCard({ children, className = '', style = {}, as = 'd
     const handleMouseMove = useCallback((e) => {
         if (isTouchRef.current || !ref.current) return;
         const rect = ref.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = ((y - centerY) / centerY) * -8;
-        const rotateY = ((x - centerX) / centerX) * 8;
-        ref.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-    }, []);
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        mouseX.set(x);
+        mouseY.set(y);
+        scale.set(1.02);
+    }, [mouseX, mouseY, scale]);
 
     const handleMouseLeave = useCallback(() => {
-        if (!ref.current) return;
-        ref.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
-    }, []);
+        mouseX.set(0);
+        mouseY.set(0);
+        scale.set(1);
+    }, [mouseX, mouseY, scale]);
 
     const Tag = as;
 
@@ -33,14 +41,23 @@ export default function TiltCard({ children, className = '', style = {}, as = 'd
             className={className}
             style={{
                 ...style,
-                transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease',
-                willChange: 'transform'
+                willChange: 'transform',
             }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             onTouchStart={handleTouchStart}
         >
-            {children}
+            <motion.div
+                style={{
+                    rotateX,
+                    rotateY,
+                    scale,
+                    transformPerspective: 1000,
+                    transformStyle: 'preserve-3d',
+                }}
+            >
+                {children}
+            </motion.div>
         </Tag>
     );
 }

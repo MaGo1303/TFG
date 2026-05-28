@@ -4,8 +4,8 @@ export function useScrollReveal() {
     useEffect(() => {
         const observerOptions = {
             root: null,
-            rootMargin: '0px',
-            threshold: 0.15
+            rootMargin: '0px 0px -50px 0px',
+            threshold: 0.12
         };
 
         const observerCallback = (entries) => {
@@ -18,7 +18,8 @@ export function useScrollReveal() {
         };
 
         const observer = new IntersectionObserver(observerCallback, observerOptions);
-        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+        const revealSelectors = '.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-clip';
+        const revealElements = document.querySelectorAll(revealSelectors);
 
         revealElements.forEach(el => observer.observe(el));
 
@@ -26,10 +27,10 @@ export function useScrollReveal() {
             mutations.forEach(mutation => {
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType === 1) {
-                        if (node.matches?.('.reveal, .reveal-left, .reveal-right, .reveal-scale')) {
+                        if (node.matches?.(revealSelectors)) {
                             observer.observe(node);
                         }
-                        node.querySelectorAll?.('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
+                        node.querySelectorAll?.(revealSelectors).forEach(el => {
                             observer.observe(el);
                         });
                     }
@@ -44,71 +45,6 @@ export function useScrollReveal() {
             mutationObserver.disconnect();
         };
     }, []);
-}
-
-export function useTextReveal(options = {}) {
-    const { threshold = 0.2, delay = 0, stagger = 40 } = options;
-    const ref = useRef(null);
-    const [revealed, setRevealed] = useState(false);
-
-    useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting && !revealed) {
-                    setRevealed(true);
-                    observer.disconnect();
-                }
-            },
-            { threshold }
-        );
-
-        observer.observe(el);
-        return () => observer.disconnect();
-    }, [threshold, revealed]);
-
-    const splitText = (text) => {
-        if (!revealed) return <span style={{ opacity: 0 }}>{text}</span>;
-        return text.split('').map((char, i) => (
-            <span
-                key={i}
-                className="split-char"
-                style={{
-                    animationDelay: `${delay + i * stagger}ms`,
-                    display: 'inline-block',
-                    minWidth: char === ' ' ? '0.3em' : undefined,
-                }}
-            >
-                {char === ' ' ? '\u00A0' : char}
-            </span>
-        ));
-    };
-
-    return { ref, revealed, splitText };
-}
-
-export function useParallax(speed = 0.3) {
-    const ref = useRef(null);
-    const [offset, setOffset] = useState(0);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            if (!ref.current) return;
-            const rect = ref.current.getBoundingClientRect();
-            const windowHeight = window.innerHeight;
-            const elementCenter = rect.top + rect.height / 2;
-            const distanceFromCenter = elementCenter - windowHeight / 2;
-            setOffset(distanceFromCenter * speed);
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll();
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [speed]);
-
-    return { ref, offset };
 }
 
 export function useCountUp(target, duration = 2000) {
@@ -145,4 +81,30 @@ export function useCountUp(target, duration = 2000) {
     }, [target, duration]);
 
     return { ref, count };
+}
+
+export function useStaggerReveal(selector = '.stagger-item', delay = 50) {
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const items = entry.target.querySelectorAll(selector);
+                        items.forEach((item, i) => {
+                            setTimeout(() => {
+                                item.classList.add('in');
+                            }, i * delay);
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.15 }
+        );
+
+        const containers = document.querySelectorAll('[data-stagger]');
+        containers.forEach(el => observer.observe(el));
+
+        return () => observer.disconnect();
+    }, [selector, delay]);
 }

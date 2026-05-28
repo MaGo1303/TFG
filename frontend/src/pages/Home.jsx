@@ -2,21 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useScrollReveal, useCountUp } from '../hooks/useAnimations';
+import { useToast } from '../context/useToast';
 import TiltCard from '../components/TiltCard';
-
-const galleryItems = [
-    { img: '/img/ferrari_488.png', name: 'Ferrari 488 GTB', price: 'Desde 800€/día' },
-    { img: '/img/Ferrari_roma.jpg', name: 'Ferrari Roma', price: 'Desde 750€/día' },
-    { img: '/img/ferrari_sf90.jpg', name: 'Ferrari SF90 Stradale', price: 'Desde 1.200€/día' },
-    { img: '/img/bentley_continental.jpg', name: 'Bentley Continental GT', price: 'Desde 600€/día' },
-    { img: '/img/rolls_ghost.jpg', name: 'Rolls-Royce Ghost', price: 'Desde 1.000€/día' },
-    { img: '/img/azimut_80.jpg', name: 'Azimut 80', price: 'Desde 3.500€/día' },
-    { img: '/img/sunseeker_75.jpg', name: 'Sunseeker 75', price: 'Desde 4.000€/día' },
-    { img: '/img/ferretti_780.jpg', name: 'Ferretti 780', price: 'Desde 3.800€/día' },
-    { img: '/img/bell_429.jpg', name: 'Bell 429', price: 'Desde 1.500€/h' },
-    { img: '/img/airbus_h145.jpg', name: 'Airbus H145', price: 'Desde 1.800€/h' },
-    { img: '/img/agusta_aw109.jpg', name: 'Agusta AW109', price: 'Desde 2.000€/h' },
-];
 
 function StatItem({ target, suffix, label }) {
     const { ref, count } = useCountUp(target, 2000);
@@ -30,31 +17,30 @@ function StatItem({ target, suffix, label }) {
 
 export default function Home() {
     useScrollReveal();
+    const { addToast } = useToast();
 
     const [nombre, setNombre] = useState('');
     const [email, setEmail] = useState('');
     const [mensaje, setMensaje] = useState('');
     const [loading, setLoading] = useState(false);
-    const [statusMsg, setStatusMsg] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setStatusMsg(null);
         try {
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/contact`, {
                 name: nombre,
                 email,
                 message: mensaje
             });
-            setStatusMsg({ type: 'success', text: res.data.message });
+            addToast(res.data.message, 'success');
             setNombre('');
             setEmail('');
             setMensaje('');
         } catch (error) {
             console.error('Error sending message:', error);
             const errorText = error.response?.data?.error || 'Hubo un error al enviar el mensaje. Inténtalo de nuevo.';
-            setStatusMsg({ type: 'error', text: errorText });
+            addToast(errorText, 'error');
         } finally {
             setLoading(false);
         }
@@ -202,24 +188,6 @@ export default function Home() {
                 </div>
             </section>
 
-            <section className="section mesh-1" id="galeria">
-                <div className="wrap">
-                    <h2 className="sec-title reveal">Nuestra <span>Flota</span></h2>
-                    <p className="sec-sub reveal delay-100">Descubre algunos de nuestros vehículos y embarcaciones más exclusivos.</p>
-                    <div className="horizontal-gallery reveal delay-200">
-                        {galleryItems.map((item, i) => (
-                            <div className="gallery-item" key={i}>
-                                <img src={item.img} alt={item.name} loading="lazy" />
-                                <div className="gallery-item-overlay">
-                                    <h3>{item.name}</h3>
-                                    <span>{item.price}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
             <section className="section" id="servicios">
                 <div className="wrap">
                     <h2 className="sec-title reveal">Nuestros <span>Servicios</span></h2>
@@ -317,25 +285,6 @@ export default function Home() {
                         <button type="submit" className="btn-gold" id="submitBtn" disabled={loading} style={{ cursor: loading ? 'not-allowed' : 'pointer' }}>
                             <i className="fa-solid fa-paper-plane"></i> {loading ? 'Enviando...' : 'Enviar'}
                         </button>
-                        
-                        {statusMsg && (
-                            <div className={`status-message ${statusMsg.type}`} style={{
-                                marginTop: '20px',
-                                padding: '12px 16px',
-                                borderRadius: '4px',
-                                background: statusMsg.type === 'success' ? 'rgba(27, 74, 50, 0.4)' : 'rgba(107, 33, 33, 0.4)',
-                                color: '#fff',
-                                border: `1px solid ${statusMsg.type === 'success' ? '#2e7d4f' : '#b23b3b'}`,
-                                fontSize: '0.9em',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px'
-                            }}>
-                                <i className={statusMsg.type === 'success' ? "fa-solid fa-circle-check" : "fa-solid fa-circle-xmark"}></i>
-                                <span>{statusMsg.text}</span>
-                            </div>
-                        )}
                     </form>
                 </div>
             </section>
