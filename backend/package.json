@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "init-db": "node init_db.js"
+    "init-db": "node init_db.js",
+    "seed-images": "node seed_item_images.js",
+    "seed-images:refresh": "node seed_item_images.js --refresh"
   },
   "keywords": [],
   "author": "",

@@ -22,6 +22,9 @@ const cardVariants = {
     }),
 };
 
+const isItemAvailable = (item) => item?.is_available === undefined || Boolean(item.is_available);
+const getPrimaryImage = (item) => item?.images?.[0] || item?.image_url;
+
 export default function Services() {
     useScrollReveal();
     const [items, setItems] = useState([]);
@@ -74,8 +77,9 @@ export default function Services() {
         const fetchCounts = async () => {
             try {
                 const res = await axios.get(`${import.meta.env.VITE_API_URL}/items`);
-                const counts = { all: res.data.length, car: 0, yacht: 0, helicopter: 0 };
-                res.data.forEach(item => {
+                const availableItems = res.data.filter(isItemAvailable);
+                const counts = { all: availableItems.length, car: 0, yacht: 0, helicopter: 0 };
+                availableItems.forEach(item => {
                     if (counts[item.type] !== undefined) counts[item.type]++;
                 });
                 setCategoryCounts(counts);
@@ -88,7 +92,9 @@ export default function Services() {
 
     const featured = useMemo(() => {
         if (items.length === 0) return null;
-        return items.reduce((max, item) => parseFloat(item.price) > parseFloat(max.price) ? item : max, items[0]);
+        const availableItems = items.filter(isItemAvailable);
+        const featuredPool = availableItems.length > 0 ? availableItems : items;
+        return featuredPool.reduce((max, item) => parseFloat(item.price) > parseFloat(max.price) ? item : max, featuredPool[0]);
     }, [items]);
 
     const rest = useMemo(() => {
@@ -162,20 +168,20 @@ export default function Services() {
                         <div>
                             {featured && (
                                 <button
-                                    className="showcase-card"
+                                    className={`showcase-card ${!isItemAvailable(featured) ? 'unavailable' : ''}`}
                                     onClick={() => openDrawer(featured)}
                                     type="button"
                                 >
                                     <div className="showcase-img">
-                                        {featured.image_url
-                                            ? <img src={featured.image_url} alt={featured.name} />
+                                        {getPrimaryImage(featured)
+                                            ? <img src={getPrimaryImage(featured)} alt={featured.name} />
                                             : <div className="showcase-img-placeholder"><i className="fa-solid fa-image"></i></div>
                                         }
                                         <div className="showcase-overlay"></div>
                                     </div>
                                     <div className="showcase-content">
                                         <div className="showcase-badge">
-                                            <i className="fa-solid fa-crown"></i> Más elegido
+                                            <i className={`fa-solid ${isItemAvailable(featured) ? 'fa-crown' : 'fa-ban'}`}></i> {isItemAvailable(featured) ? 'Más elegido' : 'No disponible'}
                                         </div>
                                         <h2 className="showcase-title">{featured.name}</h2>
                                         <p className="showcase-desc">{featured.description}</p>
@@ -184,7 +190,7 @@ export default function Services() {
                                                 <span>{featured.price}€</span>/día
                                             </div>
                                             <div className="showcase-cta">
-                                                Ver detalles <i className="fa-solid fa-arrow-right"></i>
+                                                {isItemAvailable(featured) ? 'Ver detalles' : 'Ver ficha'} <i className="fa-solid fa-arrow-right"></i>
                                             </div>
                                         </div>
                                     </div>
@@ -206,7 +212,7 @@ export default function Services() {
                                 {rest.map((item, i) => (
                                     <motion.button
                                         key={item.id}
-                                        className="grid-card"
+                                        className={`grid-card ${!isItemAvailable(item) ? 'unavailable' : ''}`}
                                         variants={cardVariants}
                                         initial="hidden"
                                         animate="visible"
@@ -215,18 +221,23 @@ export default function Services() {
                                         type="button"
                                     >
                                         <div className="grid-card-img">
-                                            {item.image_url
-                                                ? <img src={item.image_url} alt={item.name} loading="lazy" />
+                                            {getPrimaryImage(item)
+                                                ? <img src={getPrimaryImage(item)} alt={item.name} loading="lazy" />
                                                 : <div className="grid-card-placeholder"><i className="fa-solid fa-image"></i></div>
                                             }
                                             <div className="grid-card-overlay">
                                                 <span className="grid-card-type">{item.type.toUpperCase()}</span>
+                                                {!isItemAvailable(item) && <span className="grid-card-type unavailable-badge">NO DISPONIBLE</span>}
                                             </div>
                                         </div>
                                         <div className="grid-card-info">
                                             <h3>{item.name}</h3>
                                             <div className="grid-card-price">
-                                                {item.price}€<span>/día</span>
+                                                {isItemAvailable(item) ? (
+                                                    <>{item.price}€<span>/día</span></>
+                                                ) : (
+                                                    <span className="grid-card-unavailable-text">No disponible</span>
+                                                )}
                                             </div>
                                         </div>
                                     </motion.button>

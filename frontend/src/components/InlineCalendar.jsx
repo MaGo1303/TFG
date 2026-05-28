@@ -20,7 +20,7 @@ function getNextMonth(month, year) {
     return month === 11 ? { month: 0, year: year + 1 } : { month: month + 1, year };
 }
 
-function CalendarMonth({ year, month, todayStr, startDate, endDate, hoveredDate, onDayClick, onDayHover, onDayLeave }) {
+function CalendarMonth({ year, month, todayStr, startDate, endDate, hoveredDate, onDayClick, onDayHover, onDayLeave, readOnly = false }) {
     const daysInMonth = useMemo(() => getDaysInMonth(year, month), [year, month]);
     const firstDay = useMemo(() => getFirstDayOfWeek(year, month), [year, month]);
 
@@ -34,7 +34,7 @@ function CalendarMonth({ year, month, todayStr, startDate, endDate, hoveredDate,
     const getDayClass = (day) => {
         if (!day) return 'calendar-day empty';
         const dateStr = formatDate(year, month, day);
-        const isPast = dateStr < todayStr;
+        const isPast = !readOnly && dateStr < todayStr;
         const isStart = startDate && dateStr === startDate;
         const isEnd = endDate && dateStr === endDate;
         const isInRange = startDate && endDate && dateStr > startDate && dateStr < endDate;
@@ -64,9 +64,9 @@ function CalendarMonth({ year, month, todayStr, startDate, endDate, hoveredDate,
                         key={i}
                         className={getDayClass(day)}
                         onClick={() => onDayClick(day, year, month)}
-                        onMouseEnter={() => day && onDayHover(formatDate(year, month, day))}
+                        onMouseEnter={() => day && !readOnly && onDayHover(formatDate(year, month, day))}
                         onMouseLeave={onDayLeave}
-                        disabled={!day || formatDate(year, month, day) < todayStr}
+                        disabled={!day || (!readOnly && formatDate(year, month, day) < todayStr)}
                         type="button"
                     >
                         {day}
@@ -77,10 +77,18 @@ function CalendarMonth({ year, month, todayStr, startDate, endDate, hoveredDate,
     );
 }
 
-export default function InlineCalendar({ startDate, endDate, onStartDateChange, onEndDateChange }) {
+function getInitialViewDate(startDate) {
+    if (!startDate) return new Date();
+    const [year, month] = startDate.split('-').map(Number);
+    if (!year || !month) return new Date();
+    return new Date(year, month - 1, 1);
+}
+
+export default function InlineCalendar({ startDate, endDate, onStartDateChange, onEndDateChange, readOnly = false }) {
     const today = new Date();
-    const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-    const [currentYear, setCurrentYear] = useState(today.getFullYear());
+    const initialViewDate = getInitialViewDate(startDate);
+    const [currentMonth, setCurrentMonth] = useState(initialViewDate.getMonth());
+    const [currentYear, setCurrentYear] = useState(initialViewDate.getFullYear());
     const [hoveredDate, setHoveredDate] = useState(null);
 
     const todayStr = formatDate(today.getFullYear(), today.getMonth(), today.getDate());
@@ -88,6 +96,7 @@ export default function InlineCalendar({ startDate, endDate, onStartDateChange, 
 
     const handleDayClick = (day, year, month) => {
         if (!day) return;
+        if (readOnly) return;
         const dateStr = formatDate(year, month, day);
         if (dateStr < todayStr) return;
 
@@ -122,7 +131,7 @@ export default function InlineCalendar({ startDate, endDate, onStartDateChange, 
     };
 
     return (
-        <div className="inline-calendar">
+        <div className={`inline-calendar ${readOnly ? 'read-only' : ''}`}>
             <div className="calendar-header">
                 <button className="calendar-nav" onClick={handlePrevMonth} type="button">
                     <i className="fa-solid fa-chevron-left"></i>
@@ -145,6 +154,7 @@ export default function InlineCalendar({ startDate, endDate, onStartDateChange, 
                     onDayClick={handleDayClick}
                     onDayHover={setHoveredDate}
                     onDayLeave={() => setHoveredDate(null)}
+                    readOnly={readOnly}
                 />
                 <CalendarMonth
                     year={next.year}
@@ -156,6 +166,7 @@ export default function InlineCalendar({ startDate, endDate, onStartDateChange, 
                     onDayClick={handleDayClick}
                     onDayHover={setHoveredDate}
                     onDayLeave={() => setHoveredDate(null)}
+                    readOnly={readOnly}
                 />
             </div>
         </div>

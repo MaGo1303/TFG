@@ -4,7 +4,8 @@ import { useToast } from '../context/useToast';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useScrollReveal } from '../hooks/useAnimations';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import InlineCalendar from '../components/InlineCalendar';
 
 const orderVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -15,12 +16,26 @@ const orderVariants = {
     }),
 };
 
+const normalizeDate = (dateValue) => {
+    if (!dateValue) return '';
+    if (typeof dateValue === 'string') return dateValue.slice(0, 10);
+    return new Date(dateValue).toISOString().slice(0, 10);
+};
+
+const formatDisplayDate = (dateValue) => {
+    const normalized = normalizeDate(dateValue);
+    if (!normalized) return 'Sin fecha';
+    const [year, month, day] = normalized.split('-');
+    return `${day}/${month}/${year}`;
+};
+
 export default function Profile() {
     useScrollReveal();
     const { user, setUser, logout } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
     const [history, setHistory] = useState([]);
+    const [expandedCalendars, setExpandedCalendars] = useState({});
     const [formData, setFormData] = useState({ name: user?.name || '', email: user?.email || '', password: '' });
 
     useEffect(() => {
@@ -40,6 +55,13 @@ export default function Profile() {
         } catch {
             addToast('Error al actualizar el perfil', 'error');
         }
+    };
+
+    const toggleCalendar = (calendarId) => {
+        setExpandedCalendars(prev => ({
+            ...prev,
+            [calendarId]: !prev[calendarId],
+        }));
     };
 
     if (!user) return null;
@@ -146,9 +168,16 @@ export default function Profile() {
                                             </div>
                                             <div style={{ padding: '20px 25px' }}>
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                                    {order.items.map(item => (
-                                                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                                            <div style={{ width: '50px', height: '40px', background: `url('${item.image_url}') center/cover no-repeat var(--bg)`, borderRadius: '4px', border: '1px solid var(--border)' }}></div>
+                                                    {order.items.map(item => {
+                                                        const startDate = normalizeDate(item.start_date);
+                                                        const endDate = normalizeDate(item.end_date);
+                                                        const calendarId = `${order.id}-${item.id}`;
+                                                        const isCalendarOpen = expandedCalendars[calendarId];
+
+                                                        return (
+                                                        <div key={item.id} className="profile-booking-card">
+                                                            <div className="profile-booking-summary">
+                                                            <div style={{ width: '58px', height: '44px', background: `url('${item.image_url}') center/cover no-repeat var(--bg)`, borderRadius: '6px', border: '1px solid var(--border)', flex: '0 0 auto' }}></div>
                                                             <div style={{ flex: 1 }}>
                                                                 <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text)' }}>{item.name}</h4>
                                                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-2)' }}>{item.type.toUpperCase()}</span>
@@ -157,8 +186,47 @@ export default function Profile() {
                                                                 <span style={{ color: 'var(--text-3)', marginRight: '10px' }}>{item.quantity}x</span>
                                                                 <span style={{ fontWeight: '500', color: 'var(--text)' }}>{item.price}€</span>
                                                             </div>
+                                                            </div>
+
+                                                            {startDate && endDate ? (
+                                                                <div className="profile-booking-calendar">
+                                                                    <div className="profile-booking-dates">
+                                                                        <span><i className="fa-regular fa-calendar-check"></i> Inicio: {formatDisplayDate(startDate)}</span>
+                                                                        <span><i className="fa-regular fa-calendar-xmark"></i> Entrega: {formatDisplayDate(endDate)}</span>
+                                                                    </div>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="profile-calendar-toggle"
+                                                                        onClick={() => toggleCalendar(calendarId)}
+                                                                        aria-expanded={isCalendarOpen}
+                                                                    >
+                                                                        <span><i className="fa-regular fa-calendar-days"></i> {isCalendarOpen ? 'Ocultar calendario' : 'Ver calendario'}</span>
+                                                                        <i className={`fa-solid fa-chevron-${isCalendarOpen ? 'up' : 'down'}`}></i>
+                                                                    </button>
+                                                                    <AnimatePresence initial={false}>
+                                                                        {isCalendarOpen && (
+                                                                            <motion.div
+                                                                                className="profile-calendar-dropdown"
+                                                                                initial={{ height: 0, opacity: 0, y: -8 }}
+                                                                                animate={{ height: 'auto', opacity: 1, y: 0 }}
+                                                                                exit={{ height: 0, opacity: 0, y: -8 }}
+                                                                                transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
+                                                                            >
+                                                                                <div className="profile-calendar-dropdown-inner">
+                                                                                    <InlineCalendar startDate={startDate} endDate={endDate} readOnly />
+                                                                                </div>
+                                                                            </motion.div>
+                                                                        )}
+                                                                    </AnimatePresence>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="profile-booking-no-dates">
+                                                                    <i className="fa-regular fa-calendar"></i> Esta reserva no tiene fechas asignadas.
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         </motion.div>

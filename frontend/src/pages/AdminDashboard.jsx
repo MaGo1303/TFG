@@ -43,7 +43,7 @@ export default function AdminDashboard() {
 
     const fetchItems = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_URL}/items`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/admin/items`);
             setItems(res.data);
         } catch { console.error('Error fetching items'); }
     };
@@ -78,6 +78,21 @@ export default function AdminDashboard() {
             await axios.delete(`${import.meta.env.VITE_API_URL}/admin/items/${id}`);
             setItems(items.filter(i => i.id !== id));
         } catch { alert('Error al eliminar'); }
+    };
+
+    const toggleItemAvailability = async (item) => {
+        const nextAvailability = !Boolean(item.is_available);
+        try {
+            await axios.patch(`${import.meta.env.VITE_API_URL}/admin/items/${item.id}/availability`, {
+                is_available: nextAvailability,
+            });
+            setItems(items.map(i => (
+                i.id === item.id ? { ...i, is_available: nextAvailability ? 1 : 0 } : i
+            )));
+            await fetchStats();
+        } catch {
+            alert('Error al actualizar disponibilidad');
+        }
     };
 
     const deleteMessage = async (id) => {
@@ -266,7 +281,18 @@ export default function AdminDashboard() {
                                                         <td>{i.name}</td>
                                                         <td><span className={`admin-badge badge-${i.type}`}>{i.type}</span></td>
                                                         <td><strong>{parseFloat(i.price)}€</strong></td>
-                                                        <td><button className="admin-btn-icon danger" onClick={() => deleteItem(i.id)} title="Eliminar"><i className="fa-solid fa-trash"></i></button></td>
+                                                        <td>
+                                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                                <button
+                                                                    className={`admin-btn-icon ${Boolean(i.is_available) ? 'success' : 'danger-state'}`}
+                                                                    onClick={() => toggleItemAvailability(i)}
+                                                                    title={Boolean(i.is_available) ? 'Disponible. Clic para marcar como no disponible' : 'No disponible. Clic para marcar como disponible'}
+                                                                >
+                                                                    <i className={`fa-solid ${Boolean(i.is_available) ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                                                                </button>
+                                                                <button className="admin-btn-icon danger" onClick={() => deleteItem(i.id)} title="Eliminar"><i className="fa-solid fa-trash"></i></button>
+                                                            </div>
+                                                        </td>
                                                     </tr>
                                                 ))}
                                             </tbody>

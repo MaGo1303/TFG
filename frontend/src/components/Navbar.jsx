@@ -8,12 +8,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 const menuVariants = {
     hidden: {
         opacity: 0,
-        x: '100%',
+        y: -16,
         transition: { duration: 0.25, ease: [0.23, 1, 0.32, 1] },
     },
     visible: {
         opacity: 1,
-        x: 0,
+        y: 0,
         transition: { duration: 0.3, ease: [0.23, 1, 0.32, 1] },
     },
 };
@@ -59,6 +59,7 @@ export default function Navbar() {
             ]
             : [{ to: '/auth', label: 'Login', className: 'btn-gold', style: { padding: '8px 20px', borderRadius: '4px' } }]
         ),
+        { to: '/cart', label: 'Carrito', icon: <ShoppingCart size={18} style={{ marginRight: 5, verticalAlign: 'middle' }} />, isCart: true },
     ];
 
     return (
@@ -119,19 +120,21 @@ export default function Navbar() {
                             style={{
                                 position: 'fixed',
                                 top: 0,
+                                left: 0,
                                 right: 0,
                                 bottom: 0,
-                                width: '280px',
-                                background: 'rgba(15, 21, 32, 0.98)',
-                                backdropFilter: 'blur(12px)',
+                                width: '100%',
+                                background: '#0f1520',
                                 zIndex: 150,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                padding: '80px 32px 32px',
-                                gap: '8px',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '88px 32px 40px',
+                                gap: '12px',
                             }}
                         >
-                            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                            <div style={{ textAlign: 'center', marginBottom: '12px' }}>
                                 <img src="/img/royal_rent_favicon.jpg" alt="RoyalRent" style={{ height: 44, borderRadius: 8 }} />
                             </div>
                             <div style={{ width: 32, height: 2, background: 'var(--accent)', opacity: 0.4, margin: '0 auto 16px' }} />
@@ -142,8 +145,14 @@ export default function Navbar() {
                                         onClick={() => setMenuOpen(false)}
                                         className={item.className || ''}
                                         style={{
-                                            display: 'block',
-                                            padding: '12px 16px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: 6,
+                                            position: 'relative',
+                                            width: 216,
+                                            minHeight: 48,
+                                            padding: '12px 18px',
                                             color: '#fff',
                                             textDecoration: 'none',
                                             fontSize: '1.1rem',
@@ -154,6 +163,11 @@ export default function Navbar() {
                                         }}
                                     >
                                         {item.icon} {item.label}
+                                        {item.isCart && cart.length > 0 && (
+                                            <span className="badge-pulse" style={{ background: 'var(--accent)', color: 'white', borderRadius: '50%', minWidth: 20, height: 20, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, lineHeight: 1 }}>
+                                                {cart.length}
+                                            </span>
+                                        )}
                                     </Link>
                                 </motion.div>
                             ))}

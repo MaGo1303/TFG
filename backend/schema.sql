@@ -17,7 +17,16 @@ CREATE TABLE IF NOT EXISTS items (
     description TEXT,
     price DECIMAL(10,2) NOT NULL,
     image_url VARCHAR(255),
+    is_available BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS item_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    image_url TEXT NOT NULL,
+    position INT DEFAULT 0,
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS orders (

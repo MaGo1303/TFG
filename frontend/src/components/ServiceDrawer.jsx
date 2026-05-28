@@ -49,11 +49,18 @@ function formatDateDisplay(dateStr) {
     return `${day} ${months[parseInt(month) - 1]} ${year}`;
 }
 
+const isItemAvailable = (item) => item?.is_available === undefined || Boolean(item.is_available);
+
 export default function ServiceDrawer({ item, isOpen, onClose }) {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [activeImage, setActiveImage] = useState(0);
     const { addToCart } = useCart();
     const { addToast } = useToast();
+
+    useEffect(() => {
+        setActiveImage(0);
+    }, [item?.id]);
 
     useEffect(() => {
         if (isOpen) {
@@ -66,6 +73,10 @@ export default function ServiceDrawer({ item, isOpen, onClose }) {
 
     const handleAdd = () => {
         if (!item) return;
+        if (!isItemAvailable(item)) {
+            addToast('Este vehículo no está disponible ahora mismo', 'error');
+            return;
+        }
         if (!startDate || !endDate) {
             addToast('Selecciona las fechas de alquiler', 'error');
             return;
@@ -90,6 +101,9 @@ export default function ServiceDrawer({ item, isOpen, onClose }) {
 
     const days = calculateDays();
     const total = item ? parseFloat(item.price) * days : 0;
+    const available = isItemAvailable(item);
+    const galleryImages = item?.images?.length ? item.images : [item?.image_url].filter(Boolean);
+    const currentImage = galleryImages[activeImage] || item?.image_url;
 
     return createPortal(
         <AnimatePresence>
@@ -116,11 +130,26 @@ export default function ServiceDrawer({ item, isOpen, onClose }) {
 
                         <div className="drawer-body">
                             <div className="drawer-image">
-                                {item.image_url
-                                    ? <img src={item.image_url} alt={item.name} />
+                                {currentImage
+                                    ? <img src={currentImage} alt={item.name} />
                                     : <div className="drawer-image-placeholder"><i className="fa-solid fa-image"></i></div>
                                 }
                                 <div className="drawer-image-badge">{item.type.toUpperCase()}</div>
+                                {galleryImages.length > 1 && (
+                                    <div className="drawer-gallery-thumbs">
+                                        {galleryImages.map((imageUrl, index) => (
+                                            <button
+                                                key={`${imageUrl}-${index}`}
+                                                type="button"
+                                                className={`drawer-gallery-thumb ${activeImage === index ? 'active' : ''}`}
+                                                onClick={() => setActiveImage(index)}
+                                                aria-label={`Ver imagen ${index + 1}`}
+                                            >
+                                                <img src={imageUrl} alt={`${item.name} ${index + 1}`} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="drawer-content">
@@ -138,6 +167,7 @@ export default function ServiceDrawer({ item, isOpen, onClose }) {
                                     {item.description}
                                 </motion.p>
 
+                                {available ? (
                                 <motion.div className="drawer-calendar-section" custom={3} variants={contentVariants} initial="hidden" animate="visible">
                                     <div className="drawer-date-summary">
                                         <div className="date-summary-item">
@@ -157,8 +187,17 @@ export default function ServiceDrawer({ item, isOpen, onClose }) {
                                         onEndDateChange={setEndDate}
                                     />
                                 </motion.div>
+                                ) : (
+                                    <motion.div className="drawer-unavailable-note" custom={3} variants={contentVariants} initial="hidden" animate="visible">
+                                        <i className="fa-solid fa-ban"></i>
+                                        <div>
+                                            <strong>No disponible</strong>
+                                            <span>Este vehículo no se puede reservar ahora mismo.</span>
+                                        </div>
+                                    </motion.div>
+                                )}
 
-                                {startDate && endDate && (
+                                {available && startDate && endDate && (
                                     <motion.div
                                         className="drawer-total"
                                         initial={{ opacity: 0, height: 0 }}
@@ -171,10 +210,17 @@ export default function ServiceDrawer({ item, isOpen, onClose }) {
                                 )}
 
                                 <motion.div className="drawer-actions" custom={4} variants={contentVariants} initial="hidden" animate="visible">
-                                    <button className="drawer-add-btn" onClick={handleAdd}>
-                                        <i className="fa-solid fa-cart-plus"></i>
+                                    {available ? (
+                                    <button className="drawer-add-btn" onClick={handleAdd} disabled={!available}>
+                                        <i className={`fa-solid ${available ? 'fa-cart-plus' : 'fa-ban'}`}></i>
                                         Añadir al carrito
                                     </button>
+                                    ) : (
+                                        <button className="drawer-add-btn" disabled>
+                                            <i className="fa-solid fa-ban"></i>
+                                            No disponible
+                                        </button>
+                                    )}
                                 </motion.div>
                             </div>
                         </div>

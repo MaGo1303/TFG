@@ -20,6 +20,71 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
+const ensureItemsAvailabilityColumn = async () => {
+    try {
+        await pool.execute('ALTER TABLE items ADD COLUMN is_available BOOLEAN DEFAULT TRUE');
+    } catch (error) {
+        if (error.code !== 'ER_DUP_FIELDNAME') {
+            console.error('Error asegurando columna is_available:', error);
+        }
+    }
+};
+
+const ensureItemImagesTable = async () => {
+    try {
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS item_images (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                item_id INT NOT NULL,
+                image_url TEXT NOT NULL,
+                position INT DEFAULT 0,
+                FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+            )
+        `);
+        await pool.execute('ALTER TABLE item_images MODIFY image_url TEXT NOT NULL');
+    } catch (error) {
+        console.error('Error asegurando tabla item_images:', error);
+    }
+};
+
+const fallbackImagesByType = {
+    car: ['/img/ferrari_488.png', '/img/Ferrari_roma.jpg', '/img/ferrari_sf90.jpg', '/img/bentley_continental.jpg', '/img/rolls_ghost.jpg', '/img/cat_coches.png'],
+    yacht: ['/img/azimut_80.jpg', '/img/sunseeker_75.jpg', '/img/ferretti_780.jpg', '/img/azimut_80.jpg'],
+    helicopter: ['/img/bell_429.jpg', '/img/airbus_h145.jpg', '/img/agusta_aw109.jpg', '/img/cat_helicopteros.png'],
+};
+
+const buildMinimumImages = (item, extraImages = []) => {
+    const images = [...extraImages, item.image_url, ...(fallbackImagesByType[item.type] || [])]
+        .filter(Boolean)
+        .filter((url, index, arr) => arr.indexOf(url) === index);
+
+    while (images.length < 4 && images.length > 0) {
+        images.push(images[images.length % images.length]);
+    }
+
+    return images.slice(0, 4);
+};
+
+const attachImagesToItems = async (items) => {
+    if (!items.length) return items;
+    const itemIds = items.map(item => item.id);
+    const placeholders = itemIds.map(() => '?').join(',');
+    const [rows] = await pool.execute(
+        `SELECT item_id, image_url FROM item_images WHERE item_id IN (${placeholders}) ORDER BY position ASC, id ASC`,
+        itemIds
+    );
+    const imagesByItem = rows.reduce((acc, row) => {
+        if (!acc[row.item_id]) acc[row.item_id] = [];
+        acc[row.item_id].push(row.image_url);
+        return acc;
+    }, {});
+
+    return items.map(item => ({
+        ...item,
+        images: buildMinimumImages(item, imagesByItem[item.id] || []),
+    }));
+};
+
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -109,7 +174,7 @@ app.get('/api/items', async (req, res) => {
     try {
         const { type } = req.query;
         let query = 'SELECT * FROM items';
-        let params = [];
+        const params = [];
 
         if (type) {
             query += ' WHERE type = ?';
@@ -119,7 +184,7 @@ app.get('/api/items', async (req, res) => {
         const [items] = params.length > 0
             ? await pool.execute(query, params)
             : await pool.query(query);
-        res.json(items);
+        res.json(await attachImagesToItems(items));
     } catch (error) {
         console.error('Error en /api/items:', error);
         res.status(500).json({ error: 'Server error' });
@@ -139,6 +204,13 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
         const orderId = orderResult.insertId;
 
         for (const item of items) {
+            const [[dbItem]] = await connection.execute(
+                'SELECT id, is_available FROM items WHERE id = ? FOR UPDATE',
+                [item.id]
+            );
+            if (!dbItem || !dbItem.is_available) {
+                throw new Error(`Item no disponible: ${item.name || item.id}`);
+            }
             await connection.execute(
                 'INSERT INTO order_items (order_id, item_id, quantity, price, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)',
                 [orderId, item.id, item.quantity, item.price, item.startDate || null, item.endDate || null]
@@ -328,6 +400,16 @@ app.get('/api/admin/messages', authenticateToken, requireAdmin, async (req, res)
     }
 });
 
+app.get('/api/admin/items', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const [items] = await pool.execute('SELECT * FROM items ORDER BY created_at DESC');
+        res.json(await attachImagesToItems(items));
+    } catch (error) {
+        console.error('Error en /api/admin/items:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 app.delete('/api/admin/messages/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         await pool.execute('DELETE FROM messages WHERE id = ?', [req.params.id]);
@@ -367,6 +449,20 @@ app.put('/api/admin/items/:id', authenticateToken, requireAdmin, async (req, res
     }
 });
 
+app.patch('/api/admin/items/:id/availability', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { is_available } = req.body;
+        await pool.execute(
+            'UPDATE items SET is_available = ? WHERE id = ?',
+            [Boolean(is_available), req.params.id]
+        );
+        res.json({ message: Boolean(is_available) ? 'Vehículo disponible' : 'Vehículo no disponible' });
+    } catch (error) {
+        console.error('Error en PATCH /api/admin/items/:id/availability:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 app.delete('/api/admin/items/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         await pool.execute('DELETE FROM items WHERE id = ?', [req.params.id]);
@@ -383,6 +479,8 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+Promise.all([ensureItemsAvailabilityColumn(), ensureItemImagesTable()]).finally(() => {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
 });

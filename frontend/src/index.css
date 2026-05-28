@@ -577,6 +577,8 @@ em {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+  max-width: 780px;
+  margin: 0 auto;
 }
 
 .service-card {
@@ -661,6 +663,117 @@ em {
   padding: 3px 11px;
   border-radius: 4px;
   display: inline-block;
+}
+
+/* ---- PROFILE BOOKINGS ---- */
+.profile-booking-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.profile-booking-summary {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.profile-booking-calendar {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.profile-calendar-toggle {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.profile-calendar-toggle:hover {
+  border-color: var(--accent);
+  background: var(--accent-xs);
+}
+
+.profile-calendar-toggle span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-calendar-toggle i {
+  color: var(--accent);
+}
+
+.profile-calendar-dropdown {
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.profile-calendar-dropdown-inner {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.profile-booking-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.profile-booking-dates span,
+.profile-booking-no-dates {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-2);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.profile-booking-dates i,
+.profile-booking-no-dates i {
+  color: var(--accent);
+}
+
+.profile-booking-calendar .inline-calendar {
+  padding: 0;
+}
+
+.profile-booking-calendar .calendar-day {
+  cursor: default;
+}
+
+.profile-booking-calendar .calendar-day:not(.past):not(.empty):hover {
+  background: transparent;
+}
+
+.profile-booking-calendar .calendar-day.start:hover,
+.profile-booking-calendar .calendar-day.end:hover {
+  background: var(--accent);
+}
+
+.profile-booking-calendar .calendar-day.in-range:hover {
+  background: rgba(197, 160, 89, 0.15);
 }
 
 /* ---- TESTIMONIALS ---- */
@@ -1028,6 +1141,18 @@ em {
 }
 
 @media (max-width: 640px) {
+  .nav {
+    backdrop-filter: none;
+  }
+
+  .nav-hidden-top {
+    transform: none;
+  }
+
+  .nav-hidden-top.solid {
+    transform: none;
+  }
+
   .nav-links {
     display: none;
   }
