@@ -50,6 +50,19 @@ function formatDateDisplay(dateStr) {
 }
 
 const isItemAvailable = (item) => item?.is_available === undefined || Boolean(item.is_available);
+const fallbackImageByType = {
+    car: '/img/ferrari_488.png',
+    yacht: '/img/azimut_80.jpg',
+    helicopter: '/img/bell_429.jpg',
+};
+const getFallbackImage = (item) => item?.image_url || fallbackImageByType[item?.type] || '';
+const handleImageError = (event, item) => {
+    const fallback = getFallbackImage(item);
+    if (fallback && event.currentTarget.dataset.fallbackApplied !== 'true') {
+        event.currentTarget.dataset.fallbackApplied = 'true';
+        event.currentTarget.src = fallback;
+    }
+};
 
 export default function ServiceDrawer({ item, isOpen, onClose }) {
     const [startDate, setStartDate] = useState('');
@@ -102,8 +115,8 @@ export default function ServiceDrawer({ item, isOpen, onClose }) {
     const days = calculateDays();
     const total = item ? parseFloat(item.price) * days : 0;
     const available = isItemAvailable(item);
-    const galleryImages = item?.images?.length ? item.images : [item?.image_url].filter(Boolean);
-    const currentImage = galleryImages[activeImage] || item?.image_url;
+    const galleryImages = item?.images?.length ? item.images : [getFallbackImage(item)].filter(Boolean);
+    const currentImage = galleryImages[activeImage] || getFallbackImage(item);
 
     return createPortal(
         <AnimatePresence>
@@ -131,7 +144,7 @@ export default function ServiceDrawer({ item, isOpen, onClose }) {
                         <div className="drawer-body">
                             <div className="drawer-image">
                                 {currentImage
-                                    ? <img src={currentImage} alt={item.name} />
+                                    ? <img src={currentImage} alt={item.name} onError={(event) => handleImageError(event, item)} />
                                     : <div className="drawer-image-placeholder"><i className="fa-solid fa-image"></i></div>
                                 }
                                 <div className="drawer-image-badge">{item.type.toUpperCase()}</div>
@@ -145,7 +158,7 @@ export default function ServiceDrawer({ item, isOpen, onClose }) {
                                                 onClick={() => setActiveImage(index)}
                                                 aria-label={`Ver imagen ${index + 1}`}
                                             >
-                                                <img src={imageUrl} alt={`${item.name} ${index + 1}`} />
+                                                <img src={imageUrl} alt={`${item.name} ${index + 1}`} onError={(event) => handleImageError(event, item)} />
                                             </button>
                                         ))}
                                     </div>

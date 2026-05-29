@@ -23,7 +23,20 @@ const cardVariants = {
 };
 
 const isItemAvailable = (item) => item?.is_available === undefined || Boolean(item.is_available);
-const getPrimaryImage = (item) => item?.images?.[0] || item?.image_url;
+const fallbackImageByType = {
+    car: '/img/ferrari_488.png',
+    yacht: '/img/azimut_80.jpg',
+    helicopter: '/img/bell_429.jpg',
+};
+const getFallbackImage = (item) => item?.image_url || fallbackImageByType[item?.type] || '';
+const getPrimaryImage = (item) => item?.images?.[0] || getFallbackImage(item);
+const handleImageError = (event, item) => {
+    const fallback = getFallbackImage(item);
+    if (fallback && event.currentTarget.dataset.fallbackApplied !== 'true') {
+        event.currentTarget.dataset.fallbackApplied = 'true';
+        event.currentTarget.src = fallback;
+    }
+};
 
 export default function Services() {
     useScrollReveal();
@@ -108,7 +121,7 @@ export default function Services() {
 
     return (
         <div>
-            <header className="page-header">
+            <header className="page-header services-page-header">
                 <div className="wrap">
                     <div className="breadcrumb">
                         <Link to="/"><i className="fa-solid fa-house"></i> Inicio</Link>
@@ -174,7 +187,7 @@ export default function Services() {
                                 >
                                     <div className="showcase-img">
                                         {getPrimaryImage(featured)
-                                            ? <img src={getPrimaryImage(featured)} alt={featured.name} />
+                                            ? <img src={getPrimaryImage(featured)} alt={featured.name} onError={(event) => handleImageError(event, featured)} />
                                             : <div className="showcase-img-placeholder"><i className="fa-solid fa-image"></i></div>
                                         }
                                         <div className="showcase-overlay"></div>
@@ -222,7 +235,7 @@ export default function Services() {
                                     >
                                         <div className="grid-card-img">
                                             {getPrimaryImage(item)
-                                                ? <img src={getPrimaryImage(item)} alt={item.name} loading="lazy" />
+                                                ? <img src={getPrimaryImage(item)} alt={item.name} loading="lazy" onError={(event) => handleImageError(event, item)} />
                                                 : <div className="grid-card-placeholder"><i className="fa-solid fa-image"></i></div>
                                             }
                                             <div className="grid-card-overlay">

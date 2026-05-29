@@ -5,7 +5,6 @@
 /* ---- PAGE HEADER ---- */
 .page-header {
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
   padding: 80px 0 0;
 }
 .page-header .wrap { padding-bottom: 0; }
@@ -37,6 +36,14 @@
   color: var(--text-2);
   font-size: 0.97rem;
   margin-bottom: 36px;
+}
+
+.services-page-header {
+  padding-bottom: 36px;
+}
+
+.services-page-header > .wrap > p {
+  margin-bottom: 0;
 }
 
 /* ---- CATEGORY CARDS ---- */
