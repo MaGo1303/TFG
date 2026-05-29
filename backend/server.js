@@ -54,15 +54,19 @@ const fallbackImagesByType = {
 };
 
 const buildMinimumImages = (item, extraImages = []) => {
-    const images = [...extraImages, item.image_url, ...(fallbackImagesByType[item.type] || [])]
+    if (extraImages.length > 0) {
+        return extraImages.filter(Boolean);
+    }
+
+    const images = [item.image_url, ...(fallbackImagesByType[item.type] || [])]
         .filter(Boolean)
         .filter((url, index, arr) => arr.indexOf(url) === index);
 
-    while (images.length < 4 && images.length > 0) {
+    while (images.length < 1 && images.length > 0) {
         images.push(images[images.length % images.length]);
     }
 
-    return images.slice(0, 4);
+    return images.slice(0, 10);
 };
 
 const attachImagesToItems = async (items) => {
