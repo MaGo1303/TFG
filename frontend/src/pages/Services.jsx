@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import ServiceDrawer from '../components/ServiceDrawer';
 
 const categories = [
-    { key: 'all', label: 'Todos', icon: 'fa-solid fa-star', img: '/img/ferrari_488.png' },
+    { key: 'all', label: 'Todos', icon: 'fa-solid fa-star', images: ['/img/ferrari_488.png', '/img/azimut_80.jpg', '/img/bell_429.jpg'] },
     { key: 'car', label: 'Coches', icon: 'fa-solid fa-car-side', img: '/img/ferrari_488.png' },
     { key: 'yacht', label: 'Yates', icon: 'fa-solid fa-sailboat', img: '/img/azimut_80.jpg' },
     { key: 'helicopter', label: 'Helicópteros', icon: 'fa-solid fa-helicopter', img: '/img/bell_429.jpg' },
@@ -143,7 +143,15 @@ export default function Services() {
                                 onClick={() => handleFilter(cat.key)}
                             >
                                 <div className="cat-card-img">
-                                    <img src={cat.img} alt={cat.label} />
+                                    {cat.images ? (
+                                        <div className="cat-card-collage" aria-hidden="true">
+                                            {cat.images.map((image) => (
+                                                <img key={image} src={image} alt="" />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <img src={cat.img} alt={cat.label} />
+                                    )}
                                     <div className="cat-card-overlay"></div>
                                 </div>
                                 <div className="cat-card-content">
